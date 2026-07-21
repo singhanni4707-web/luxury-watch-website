@@ -1,0 +1,25 @@
+# Windows thumbnails and system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDEs and editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Node modules (if any get created)
+node_modules/
+dist/
+
+# OS metadata
+.DS_Store

@@ -1,0 +1,158 @@
+:root {
+    --bg-color: #050508;
+    --accent: #00f0ff;
+    --text-main: #f0f4f8;
+    --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+    height: 100%;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #030305;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 240, 255, 0.15);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+/* Preloader */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #030305;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
+}
+
+#preloader.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.preloader-content {
+    text-align: center;
+    width: 260px;
+}
+
+.logo-text {
+    font-size: 1.25rem;
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    margin-bottom: 1.25rem;
+    color: var(--text-main);
+}
+
+.loader-track {
+    width: 100%;
+    height: 2px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 1px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+    position: relative;
+}
+
+#loader-fill {
+    width: 0%;
+    height: 100%;
+    background-color: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+}
+
+.loader-status {
+    text-align: right;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+}
+
+/* Scroll Container & Canvas Wrapper */
+#scroll-container {
+    position: relative;
+    width: 100%;
+    min-height: 450vh; /* Smooth scrolling height for canvas animation */
+}
+
+.canvas-wrapper {
+    position: sticky; /* Make canvas sticky instead of fixed so it scrolls up naturally when animation ends */
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#animation-canvas {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* Custom Styles from code.html */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease-out;
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.gold-shimmer {
+    background: linear-gradient(90deg, #c5a059 0%, #ffdea5 50%, #c5a059 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 4s linear infinite;
+}
+
+@keyframes shimmer {
+    to { background-position: 200% center; }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #1b1c1c;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #c5a059;
+}

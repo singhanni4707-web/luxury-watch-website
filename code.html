@@ -1,0 +1,396 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Calci | The Art of Precision</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&amp;family=Manrope:wght@200..800&amp;family=Be+Vietnam+Pro:wght@100..900&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#412d00",
+                        "on-surface": "#e3e2e2",
+                        "secondary": "#c8c6c5",
+                        "on-primary-fixed-variant": "#5d4201",
+                        "outline": "#9a8f80",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "surface-dim": "#121414",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-tertiary-fixed": "#1c1b1b",
+                        "surface-container-high": "#292a2a",
+                        "on-secondary": "#313030",
+                        "surface-container": "#1f2020",
+                        "inverse-surface": "#e3e2e2",
+                        "primary": "#e9c176",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary": "#313030",
+                        "on-primary-fixed": "#261900",
+                        "primary-fixed": "#ffdea5",
+                        "on-tertiary-fixed-variant": "#474746",
+                        "on-error": "#690005",
+                        "on-secondary-fixed-variant": "#474646",
+                        "inverse-on-surface": "#2f3031",
+                        "error": "#ffb4ab",
+                        "tertiary-fixed": "#e5e2e1",
+                        "background": "#121414",
+                        "surface-container-low": "#1b1c1c",
+                        "tertiary-fixed-dim": "#c8c6c5",
+                        "surface-bright": "#383939",
+                        "tertiary": "#c8c6c5",
+                        "tertiary-container": "#a7a5a5",
+                        "on-tertiary-container": "#3b3b3b",
+                        "surface-variant": "#343535",
+                        "secondary-container": "#4a4949",
+                        "primary-fixed-dim": "#e9c176",
+                        "surface-container-highest": "#343535",
+                        "surface": "#121414",
+                        "on-secondary-container": "#bab8b7",
+                        "primary-container": "#c5a059",
+                        "secondary-fixed": "#e5e2e1",
+                        "surface-container-lowest": "#0d0e0f",
+                        "surface-tint": "#e9c176",
+                        "outline-variant": "#4e4639",
+                        "on-background": "#e3e2e2",
+                        "inverse-primary": "#775a19",
+                        "on-primary-container": "#4e3700",
+                        "error-container": "#93000a",
+                        "on-surface-variant": "#d1c5b4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "32px",
+                        "margin-desktop": "80px",
+                        "element-gap": "24px",
+                        "section-gap": "160px",
+                        "margin-mobile": "24px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Manrope"],
+                        "headline-lg-mobile": ["Bodoni Moda"],
+                        "headline-lg": ["Bodoni Moda"],
+                        "display-lg": ["Bodoni Moda"],
+                        "label-caps": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "headline-md": ["Bodoni Moda"]
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #121414;
+            color: #e3e2e2;
+            overflow-x: hidden;
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .gold-shimmer {
+            background: linear-gradient(90deg, #c5a059 0%, #ffdea5 50%, #c5a059 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 4s linear infinite;
+        }
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1b1c1c;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c5a059;
+        }
+    </style>
+</head>
+<body class="font-body-md selection:bg-primary selection:text-on-primary">
+<!-- Navigation (Shared Component Integration Inspired) -->
+<nav class="fixed top-0 left-0 w-full z-50 border-b border-outline-variant bg-surface/80 backdrop-blur-md">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="size-6 text-primary">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M39.475 21.6262C40.358 21.4363 40.6863 21.5589 40.7581 21.5934C40.7876 21.655 40.8547 21.857 40.8082 22.3336C40.7408 23.0255 40.4502 24.0046 39.8572 25.2301C38.6799 27.6631 36.5085 30.6631 33.5858 33.5858C30.6631 36.5085 27.6632 38.6799 25.2301 39.8572C24.0046 40.4502 23.0255 40.7407 22.3336 40.8082C21.8571 40.8547 21.6551 40.7875 21.5934 40.7581C21.5589 40.6863 21.4363 40.358 21.6262 39.475C21.8562 38.4054 22.4689 36.9657 23.5038 35.2817C24.7575 33.2417 26.5497 30.9744 28.7621 28.762C30.9744 26.5497 33.2417 24.7574 35.2817 23.5037C36.9657 22.4689 38.4054 21.8562 39.475 21.6262ZM4.41189 29.2403L18.7597 43.5881C19.8813 44.7097 21.4027 44.9179 22.7217 44.7893C24.0585 44.659 25.5148 44.1631 26.9723 43.4579C29.9052 42.0387 33.2618 39.5667 36.4142 36.4142C39.5667 33.2618 42.0387 29.9052 43.4579 26.9723C44.1631 25.5148 44.659 24.0585 44.7893 22.7217C44.9179 21.4027 44.7097 19.8813 43.5881 18.7597L29.2403 4.41187C27.8527 3.02428 25.8765 3.02573 24.2861 3.36776C22.6081 3.72863 20.7334 4.58419 18.8396 5.74801C16.4978 7.18716 13.9881 9.18353 11.5858 11.5858C9.18354 13.988 7.18717 16.4978 5.74802 18.8396C4.58421 20.7334 3.72865 22.6081 3.36778 24.2861C3.02574 25.8765 3.02429 27.8527 4.41189 29.2403Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<span class="text-xl font-bold tracking-tight text-on-surface uppercase">Calci</span>
+</div>
+<div class="hidden md:flex items-center gap-10">
+<a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="#">Heritage</a>
+<a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="#">Collection</a>
+<a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="#">Craftsmanship</a>
+<a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="#">Store</a>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:brightness-110 transition-all">
+                Shop Now
+            </button>
+</div>
+</nav>
+<!-- 1. Hero Section -->
+<section class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+<div class="absolute inset-0 z-0">
+<div class="absolute inset-0 bg-gradient-to-b from-transparent to-background"></div>
+<img class="w-full h-full object-cover opacity-60" data-alt="A macro cinematic shot of a luxury Calci watch with an intricate obsidian face and 24k gold bezel. The lighting is dramatic, low-key, highlighting the polished textures and the reflection of gold on the deep black surface. The background is a soft-focus architectural dark space, creating a mood of absolute prestige and timeless elegance." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUEJMW8Pfr_lPTBib9StkhwFORqjPv5f4WG9CNrCojF2UVvZT1cCqCNFS4tYm9mkA4QwP8Sy69tsHJx5Jw1kz7SmRLkQP4Xeb2KSZW2CxXl3kCPCtIrzQn1bRG2pVtjnsjuYiUX8DOobtUeulGRMGUGjRDcptk6XQU78uAnK_SoWNDCeRBxKfsOjxICV9BbXgdT68JB18zRWK527uI3VcUMH0ocf4P0Yx3hdAjbCKpWMiiYVpQa1Oe2q5QoodpF2iXFjQVmo9dQHgz">
+</div>
+<div class="relative z-10 text-center px-6 max-w-4xl mx-auto">
+<h1 class="font-display-lg text-white text-6xl md:text-8xl mb-6 tracking-tighter uppercase leading-[0.9]">
+                The Art of <span class="gold-shimmer">Precision</span>
+</h1>
+<p class="font-body-lg text-on-surface-variant text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">
+                Calci: Timeless Elegance, Mastered. A legacy of horological excellence distilled into a single, perfect form.
+            </p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+<button class="min-w-[200px] bg-primary text-on-primary py-4 px-8 rounded-full font-bold uppercase tracking-widest hover:scale-105 transition-transform">
+                    Explore Collection
+                </button>
+<button class="min-w-[200px] border border-outline text-white py-4 px-8 rounded-full font-bold uppercase tracking-widest hover:bg-white/5 transition-colors">
+                    Watch the Film
+                </button>
+</div>
+</div>
+<div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce opacity-50">
+<span class="material-symbols-outlined text-3xl">keyboard_double_arrow_down</span>
+</div>
+</section>
+<!-- 2. Heritage Section -->
+<section class="py-section-gap px-6 md:px-margin-desktop bg-surface-container-lowest">
+<div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-gutter items-center">
+<div class="reveal active">
+<span class="text-primary font-label-caps uppercase mb-4 block">Est. 1924</span>
+<h2 class="font-headline-lg text-white mb-8">Our Heritage</h2>
+<p class="font-body-lg text-on-surface-variant mb-8 leading-relaxed">
+                    Founded on the principles of Swiss excellence and visionary design, Calci has spent a century redefining the boundaries of what a timepiece can be. Every movement is a symphony of hundreds of handcrafted components, working in perfect unison to capture the very essence of time.
+                </p>
+<div class="flex items-center gap-4 border-t border-outline-variant pt-8">
+<div class="size-12 rounded-full border border-primary flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">auto_awesome</span>
+</div>
+<div>
+<p class="text-sm font-bold text-white uppercase tracking-wider">Swiss Certified</p>
+<p class="text-xs text-on-surface-variant">Mastery in every second.</p>
+</div>
+</div>
+</div>
+<div class="reveal relative group active">
+<div class="absolute -inset-4 border border-primary/20 rounded-xl group-hover:scale-105 transition-transform duration-700"></div>
+<div class="aspect-[4/5] rounded-lg overflow-hidden bg-surface-container shadow-2xl">
+<img class="w-full h-full object-cover" data-alt="Close-up macro detail of a Calci watch crown and case edge. The focus is on the precision-milled gold texture and the subtle Calci logo engraving. The lighting creates high-contrast shadows against the obsidian-brushed steel, emphasizing the premium craft and material quality. Dark, moody, high-end commercial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaNzKYAl8peZdeLfO0W6EqW_NaVQPcP9FEhctLPz8FiaGEm_6jbe5zSuw3o1aEFYwr1Aj-GjkJ5QyKr-b5F6UFVS1MWlMA-NSeDYR8Qs2eLphScnF5a-OEBNnptlPe4ONnKEdjAWvT2oJFn1DSfKgJSGoGfN6thGUpSDTyVvjR2LCKAOsBKbhtybJu1ByUY5jobclNGWYTqU9IgyPvbW1Q0R2TFAYAdSTh-r-gf0wdaFVJzB4c5HZwSDV2uBFqJE5yplH63EEbaqD_">
+</div>
+</div>
+</div>
+</section>
+<!-- 3. Featured Collection -->
+<section class="py-section-gap px-6 md:px-margin-desktop">
+<div class="max-w-7xl mx-auto">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+<div>
+<span class="text-primary font-label-caps uppercase mb-4 block">Curated Selection</span>
+<h2 class="font-headline-lg text-white">Featured Collection</h2>
+</div>
+<a class="text-sm font-bold text-primary flex items-center gap-2 hover:translate-x-2 transition-transform" href="#">
+                    View Full Catalog <span class="material-symbols-outlined">trending_flat</span>
+</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Watch 1 -->
+<div class="reveal group active">
+<div class="relative aspect-[3/4] bg-surface-container-high rounded-xl overflow-hidden mb-6 flex items-center justify-center p-12 transition-all duration-500 group-hover:shadow-[0_0_50px_-12px_rgba(233,193,118,0.3)]">
+<img class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700" data-alt="The Calci Obsidian Gold edition watch, shown head-on. The watch features a black leather strap, a dark obsidian skeleton dial where the inner gears are visible, and polished gold hands. High-contrast lighting with deep shadows, set against a dark textured background that complements the luxurious design system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ1d0DJTQ3Ber0yT60vjZ1gMWAZ_uENqh41A5rl9BDwkpfKjBapwzxoFURpKIziVM-tk0MwzB4zgC7fvB-rk3E2Z6vmzdw8C-TA9GMViTmBBOjz5yHNxHqeWb37DLi-CR4w6U9EdsS2U293w1YTMMeJUbJ8Qa-evgFYOmRYqfHHsI88ntext6mg9Q1rg_cRuDjJfL4uSC9ysqgHCBuIzMUbqq4Mwz6J2wkE5ia3qsTSi0tPIXEBOmvq6XlU51WYwTMJTvHS7rodmhw">
+</div>
+<p class="text-primary text-xs font-label-caps uppercase mb-2">Signature Series</p>
+<h3 class="font-headline-md text-white mb-2">Obsidian Gold</h3>
+<p class="text-on-surface-variant text-sm font-body-md mb-4">Automatic Movement • 42mm • Skeleton Dial</p>
+<p class="text-white font-bold text-lg">$12,400</p>
+</div>
+<!-- Watch 2 -->
+<div class="reveal group active" style="transition-delay: 200ms;">
+<div class="relative aspect-[3/4] bg-surface-container-high rounded-xl overflow-hidden mb-6 flex items-center justify-center p-12 transition-all duration-500 group-hover:shadow-[0_0_50px_-12px_rgba(233,193,118,0.3)]">
+<img class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700" data-alt="The Calci Classic Chrono watch with a brushed gold metal bracelet. The watch face is a deep matte black with three sub-dials and gold accents. The lighting is sophisticated, casting elegant highlights across the links of the gold band. A symbol of corporate power and refined taste, presented in a minimalist high-end setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcw9oT_vxxtgOQUoy_XP6ZnfURLvnq1V8bccXUMmmAcrJLIh-VAuKcXnVP9LGfK1mH1iqg6ijXH7kVQgdFzMWX9GZVFtLQchv6s2v8GleUygniIuc5VMBBeWMdNNSu2DisnJnPvIEcVcv0uPO8umwGWD4QiOXOjeN2TTsAQT6it7FuCkLfJr5rFxBnz7pIAdOEbDjcVTA5_-yzmoirnNFO1KXQYhnklKcANe9fVIquiupKLuAi_2WiB-0mjKZnB0y_FbihOChH1sbN">
+</div>
+<p class="text-primary text-xs font-label-caps uppercase mb-2">Heritage Line</p>
+<h3 class="font-headline-md text-white mb-2">Classic Chrono</h3>
+<p class="text-on-surface-variant text-sm font-body-md mb-4">Chronograph • 40mm • 24k Gold Bracelet</p>
+<p class="text-white font-bold text-lg">$15,800</p>
+</div>
+<!-- Watch 3 -->
+<div class="reveal group active" style="transition-delay: 400ms;">
+<div class="relative aspect-[3/4] bg-surface-container-high rounded-xl overflow-hidden mb-6 flex items-center justify-center p-12 transition-all duration-500 group-hover:shadow-[0_0_50px_-12px_rgba(233,193,118,0.3)]">
+<img class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700" data-alt="The Calci Midnight Masterpiece, a limited edition watch featuring a black titanium case and a celestial-themed dial. Gold-flecked hands point to minimalist markers. The watch sits on a luxurious black velvet pedestal. The aesthetic is dark, mysterious, and incredibly exclusive, fitting the Obsidian and Gold theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwE9xOPMZC9vRUneIX68p0UpSciLB3Ug2YBrnaxWna1XUTOif1c3tEynItWtnzi_hfDyt5hxo0gJmPRKHcV3HPZ3CPbxNkCfj6f9IX2n8Mu0sH8Q7LOA21MSzMREIZtjtLkB8A62r6t9oRCUQ0xk6bMZBLpbDCdMiPm36P6mV6Ha_oQhpVG9Sj6BOuc8uWusukPiG_pWqYWqIidFfoiQVe-P8IzZD9UOy0bVA9m-D7a5DHxm3YbEgLxdddy5qzlaBrJEa5AIqCBqQ5">
+</div>
+<p class="text-primary text-xs font-label-caps uppercase mb-2">Limited Edition</p>
+<h3 class="font-headline-md text-white mb-2">Midnight Masterpiece</h3>
+<p class="text-on-surface-variant text-sm font-body-md mb-4">Manual Wind • 44mm • Titanium Case</p>
+<p class="text-white font-bold text-lg">$24,000</p>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. Craftsmanship Section -->
+<section class="py-section-gap relative overflow-hidden">
+<div class="absolute inset-0 z-0">
+<webgl-shader class="opacity-30" src="{{DATA:ANIMATION:ANIMATION_1}}"></webgl-shader>
+</div>
+<div class="max-w-5xl mx-auto px-6 relative z-10 text-center">
+<span class="text-primary font-label-caps uppercase mb-6 block tracking-[0.3em]">The Movement</span>
+<h2 class="font-display-lg text-white text-5xl md:text-7xl mb-10">Beyond The Dial</h2>
+<div class="grid md:grid-cols-3 gap-12 text-left mt-20">
+<div class="reveal active">
+<span class="material-symbols-outlined text-primary text-4xl mb-6">history_toggle_off</span>
+<h4 class="text-xl font-bold text-white mb-4">72-Hour Reserve</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">Our proprietary movement ensures three full days of precision without the need for winding.</p>
+</div>
+<div class="reveal active" style="transition-delay: 200ms;">
+<span class="material-symbols-outlined text-primary text-4xl mb-6">diamond</span>
+<h4 class="text-xl font-bold text-white mb-4">Jeweled Bearing</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">24 synthetic rubies minimize friction, guaranteeing a lifetime of flawless mechanical performance.</p>
+</div>
+<div class="reveal active" style="transition-delay: 400ms;">
+<span class="material-symbols-outlined text-primary text-4xl mb-6">precision_manufacturing</span>
+<h4 class="text-xl font-bold text-white mb-4">Bespoke Caliber</h4>
+<p class="text-on-surface-variant text-sm leading-relaxed">The Calci 902 movement is entirely designed and assembled in our Swiss workshops.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. Lifestyle Gallery -->
+<section class="py-section-gap px-6 md:px-margin-desktop">
+<div class="max-w-7xl mx-auto">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 h-[600px] md:h-[800px]">
+<div class="col-span-2 row-span-2 reveal overflow-hidden rounded-2xl relative group active">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" data-alt="A sophisticated man in a charcoal designer suit looking out from a high-rise balcony at a twilight city skyline. His hand, resting on the railing, clearly displays a Calci watch that catches the urban lights. The mood is high-fashion, editorial, and aspirational, using a palette of deep blues, blacks, and warm gold highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7OJ2RROmrpifc9nvl0QaeriHHjxzusEw5TupaGqXzVURZKPGHLT1xHnARUefQF2xC5dToAWz_0ShA9-3eQ_7Dv7gbk_zdZNMefcJ7HytIVAPwNZRZg75mNtGfQMXlpHK4xqjcOwASyb0qgUvHOXTxxnT252WUV1rLnwnor0klVzbMDuWSqYf-lX9BaZyrugBUJeACjWLOoNp-x-3BpU-m42kvFVmKIuAxi6zjztW9JbMnM_M-S87066_lLJg4QA1RNvvIRKbpN5oz">
+<div class="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
+<p class="text-white font-label-caps text-xs tracking-widest">Horizon Collection</p>
+</div>
+</div>
+<div class="reveal overflow-hidden rounded-2xl relative group active" style="transition-delay: 200ms;">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" data-alt="A high-fashion editorial close-up of a hand reaching for an espresso cup on a marble table. A gold Calci watch is the focal point, contrasting with the dark coffee and white marble. Sunlight filters through a blind, creating a cinematic striped shadow effect. Minimalist, luxurious, and perfectly styled lifestyle photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgogMB-adPJoqF9ATO7xk5x74FYznNPpyMVRKfXQmg7hem3AxB_Qo2gJD9bs5w3Dvj06rXSPRhqMknaGhIpezBREYn0gF6SaPMVaZft693DOdSulURO1k-_OpNZgWN6H_qdjO2wduLxII9gcsK-AZvq7jQuN7i1Onf-R0QVrjovEp7kyK6b_Nm8SEojttT1FlyqZzxTC91t-eb2Jd50mOBo2ybxreLBFgjnW9diTyRvVBYwgjX59QHcUnQfUqSvV9MKZwGJkdCitpE">
+</div>
+<div class="reveal overflow-hidden rounded-2xl relative group active" style="transition-delay: 400ms;">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" data-alt="Close-up of a vintage leather steering wheel in a luxury automobile. The driver's wrist features a Calci Chronograph. The interior is dark leather with wood accents, and the lighting is soft and golden from a sunset. The image evokes a sense of travel, speed, and timeless luxury style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKRj0YaIm7iLw2VqpihD8_Wfwu0Z90CEEx9476kc52Dt-ixHPExw6splIcdjq1K_dUxWQ_swp3CmK_mcnS77wdWEJacXZ-FOx3AZhILuKJRlmzfsOg9pv1FKGLEcQprx6dhuBZPd68jK6kDsptpQJHEq6TTK6WzGo4EuHL59rS5AtgkjqLTEDnMFOFaCGb6iQ8AiAGu2I8sYOQxH347lPG19tFX--r9a8OJjOYWGTxGZDumnavjNx7lK2WcfgMSLxP7vm_-qnKMNc1">
+</div>
+<div class="col-span-2 reveal overflow-hidden rounded-2xl relative group active" style="transition-delay: 600ms;">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s]" data-alt="Wide shot of a minimalist luxury boutique interior for Calci. The walls are dark obsidian stone with illuminated gold recessed shelves. The space is empty and serene, highlighting the exclusivity of the brand. Polished floors reflect the warm accent lighting. A temple of horological excellence in a major fashion capital." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMTsOrasAvEG0tMyiV1SEcDFmBT_LkptPM_nDk9X81HmcapJ0FV8jeeYYyROVzwISi0Ry8TdlPuWQ9PXdm5xcujzqfgFF_LDKPBZdkj5rY_cflV7PT-DLoUd0tFnKmS4nHFaCNHIcyZIgdct96hKUtOSsFhGa1U-Dkuo1WlUltMcfTLUAS6iXZc57yz0Y26gxBWu5kS1nrURMiY4oo9IIhHzqd1ju9dvQZmSLdyLHn5T0ZOIagb6e6kOGNWTJeCoqa3amrGp0Ay_AT">
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant pt-20 pb-10 px-6 md:px-margin-desktop">
+<div class="max-w-7xl mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+<div class="col-span-1 md:col-span-1">
+<div class="flex items-center gap-2 mb-6">
+<div class="size-6 text-primary">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M39.475 21.6262C40.358 21.4363 40.6863 21.5589 40.7581 21.5934C40.7876 21.655 40.8547 21.857 40.8082 22.3336C40.7408 23.0255 40.4502 24.0046 39.8572 25.2301C38.6799 27.6631 36.5085 30.6631 33.5858 33.5858C30.6631 36.5085 27.6632 38.6799 25.2301 39.8572C24.0046 40.4502 23.0255 40.7407 22.3336 40.8082C21.8571 40.8547 21.6551 40.7875 21.5934 40.7581C21.5589 40.6863 21.4363 40.358 21.6262 39.475C21.8562 38.4054 22.4689 36.9657 23.5038 35.2817C24.7575 33.2417 26.5497 30.9744 28.7621 28.762C30.9744 26.5497 33.2417 24.7574 35.2817 23.5037C36.9657 22.4689 38.4054 21.8562 39.475 21.6262Z" fill="currentColor"></path>
+</svg>
+</div>
+<span class="text-xl font-bold tracking-tight text-white uppercase">Calci</span>
+</div>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-8">
+                        The pinnacle of Swiss horology. Precision movements wrapped in obsidian and gold.
+                    </p>
+<div class="flex gap-4">
+<a class="size-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" href="#">
+<span class="material-symbols-outlined text-sm">public</span>
+</a>
+<a class="size-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" href="#">
+<span class="material-symbols-outlined text-sm">share</span>
+</a>
+<a class="size-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" href="#">
+<span class="material-symbols-outlined text-sm">mail</span>
+</a>
+</div>
+</div>
+<div>
+<h5 class="text-white font-bold uppercase tracking-widest text-xs mb-8">Collections</h5>
+<ul class="space-y-4">
+<li class=""><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">Obsidian Series</a></li>
+<li class=""><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">Gold Legacy</a></li>
+<li class=""><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">Skeleton Masterpieces</a></li>
+<li class=""><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">Limited Editions</a></li>
+</ul>
+</div>
+<div>
+<h5 class="text-white font-bold uppercase tracking-widest text-xs mb-8">The Brand</h5>
+<ul class="space-y-4">
+<li class=""><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">Our History</a></li>
+<li class=""><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">Craftsmanship</a></li>
+<li class=""><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">Boutiques</a></li>
+<li class=""><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">Press</a></li>
+</ul>
+</div>
+<div>
+<h5 class="text-white font-bold uppercase tracking-widest text-xs mb-8">Newsletter</h5>
+<p class="text-on-surface-variant text-sm mb-6">Join our private circle for early access to new releases.</p>
+<div class="relative">
+<input class="w-full bg-surface-container border-outline-variant border rounded-full px-6 py-3 text-sm focus:outline-none focus:border-primary transition-colors" placeholder="Email Address" type="email">
+<button class="absolute right-2 top-1/2 -translate-y-1/2 text-primary">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<div class="border-t border-outline-variant pt-10 flex flex-col md:flex-row justify-between items-center gap-6">
+<p class="text-on-surface-variant text-xs">© 2024 Calci Horology. All rights reserved.</p>
+<div class="flex gap-8">
+<a class="text-on-surface-variant text-xs hover:text-white transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant text-xs hover:text-white transition-colors" href="#">Terms of Service</a>
+<a class="text-on-surface-variant text-xs hover:text-white transition-colors" href="#">Cookie Settings</a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        // Reveal animation on scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach((el) => {
+            observer.observe(el);
+        });
+
+        // Smooth scroll implementation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+
+
+</body></html>
