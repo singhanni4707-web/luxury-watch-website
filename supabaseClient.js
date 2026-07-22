@@ -299,3 +299,56 @@ async function saveReviewViaRest(reviewData) {
 window.fetchReviewsFromDatabase = fetchReviewsFromDatabase;
 window.saveReviewToSupabase = saveReviewToSupabase;
 
+/**
+ * Update visibility of Admin navigation links based on active session
+ */
+async function updateGlobalAdminNavVisibility(session) {
+    if (session === undefined && supabaseClient && supabaseClient.auth) {
+        try {
+            const { data } = await supabaseClient.auth.getSession();
+            session = data ? data.session : null;
+        } catch (e) {}
+    }
+
+    const hasSession = !!(session && session.user);
+    const links = document.querySelectorAll('.admin-nav-link, a[href="admin.html"]');
+
+    links.forEach(link => {
+        if (hasSession) {
+            link.classList.remove('hidden');
+        } else {
+            link.classList.add('hidden');
+        }
+    });
+}
+
+/**
+ * Initialize global Supabase Auth state listener
+ */
+function initAuthSessionListener() {
+    initSupabaseClient();
+    if (supabaseClient && supabaseClient.auth) {
+        // Initial session check
+        supabaseClient.auth.getSession().then(({ data }) => {
+            updateGlobalAdminNavVisibility(data ? data.session : null);
+        }).catch(() => {});
+
+        // Listen for auth state changes (login, logout, token refresh)
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            updateGlobalAdminNavVisibility(session);
+            if (typeof window.checkAdminAuth === 'function') {
+                window.checkAdminAuth();
+            }
+        });
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuthSessionListener);
+} else {
+    initAuthSessionListener();
+}
+
+window.updateGlobalAdminNavVisibility = updateGlobalAdminNavVisibility;
+window.initAuthSessionListener = initAuthSessionListener;
+

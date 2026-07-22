@@ -70,55 +70,69 @@ async function handleAdminLogin(e) {
     const password = passEl.value.trim();
 
     if (!email || !password) {
-        if (errMsg) errMsg.innerText = "Please enter email and password.";
+        if (errMsg) errMsg.innerText = "Please enter both email address and password.";
         if (errAlert) errAlert.classList.remove("hidden");
         return;
     }
 
     if (errAlert) errAlert.classList.add("hidden");
-    if (btn) btn.disabled = true;
-
-    let authSuccess = false;
-    let authErrorMsg = null;
-
-    // Attempt Supabase Auth Sign In
-    if (window.supabaseClient && window.supabaseClient.auth) {
-        try {
-            const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) {
-                authErrorMsg = error.message;
-            } else if (data && data.session) {
-                authSuccess = true;
-            } else {
-                authErrorMsg = "No session returned from Supabase Auth.";
-            }
-        } catch (err) {
-            authErrorMsg = err.message;
-        }
-    } else {
-        authErrorMsg = "Supabase Auth is not initialized. Please refresh the page.";
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = "Authenticating...";
     }
 
-    if (btn) btn.disabled = false;
+    try {
+        if (!window.supabaseClient || !window.supabaseClient.auth) {
+            throw new Error("Supabase Auth client not loaded. Please refresh the page.");
+        }
 
-    if (authSuccess) {
-        if (passEl) passEl.value = "";
-        await checkAdminAuth();
-    } else {
-        if (errMsg) errMsg.innerText = authErrorMsg || "Invalid credentials.";
+        const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+
+        if (error) {
+            console.error("Admin login error:", error);
+            let displayMsg = error.message;
+            if (error.message.includes("Invalid login credentials")) {
+                displayMsg = "Invalid admin email or password. Please check your credentials.";
+            } else if (error.message.includes("Email not confirmed")) {
+                displayMsg = "Email address is not confirmed in Supabase Auth.";
+            }
+            if (errMsg) errMsg.innerText = displayMsg;
+            if (errAlert) errAlert.classList.remove("hidden");
+        } else if (data && data.session) {
+            if (passEl) passEl.value = "";
+            if (errAlert) errAlert.classList.add("hidden");
+            await checkAdminAuth();
+            if (typeof window.updateGlobalAdminNavVisibility === 'function') {
+                window.updateGlobalAdminNavVisibility(data.session);
+            }
+        } else {
+            if (errMsg) errMsg.innerText = "Authentication failed. No active session returned.";
+            if (errAlert) errAlert.classList.remove("hidden");
+        }
+    } catch (err) {
+        console.error("Admin login exception:", err);
+        if (errMsg) errMsg.innerText = err.message || "An unexpected error occurred during authentication.";
         if (errAlert) errAlert.classList.remove("hidden");
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = "Log In to Dashboard";
+        }
     }
 }
 
 async function handleAdminLogout() {
-    if (window.supabaseClient && window.supabaseClient.auth) {
-        try {
+    try {
+        if (window.supabaseClient && window.supabaseClient.auth) {
             await window.supabaseClient.auth.signOut();
-        } catch (e) {
-            console.warn("Supabase signout notice:", e);
         }
+    } catch (e) {
+        console.warn("Supabase signout notice:", e);
     }
     await checkAdminAuth();
+    if (typeof window.updateGlobalAdminNavVisibility === 'function') {
+        window.updateGlobalAdminNavVisibility(null);
+    }
 }
 
 // -------------------------------------------------------------
