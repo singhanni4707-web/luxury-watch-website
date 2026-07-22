@@ -3,26 +3,7 @@ let ENV_SUPABASE_URL = "https://ohieslrkmkgxhmnemikw.supabase.co/rest/v1/";
 let ENV_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_2CccCUOhYZPdMTsf3w6Hog_kMuH-Eng";
 
 // Read from .env if available at runtime
-async function loadEnvVariables() {
-    try {
-        const response = await fetch(".env");
-        if (response.ok) {
-            const text = await response.text();
-            text.split("\n").forEach((line) => {
-                const trimmed = line.trim();
-                if (trimmed && !trimmed.startsWith("#")) {
-                    const parts = trimmed.split("=");
-                    const key = parts[0].trim();
-                    const value = parts.slice(1).join("=").trim();
-                    if (key === "SUPABASE_URL") ENV_SUPABASE_URL = value;
-                    if (key === "SUPABASE_PUBLISHABLE_KEY") ENV_SUPABASE_PUBLISHABLE_KEY = value;
-                }
-            });
-        }
-    } catch (e) {
-        // Fall back to default env config
-    }
-}
+
 
 // Global Supabase client reference
 let supabaseClient = null;
@@ -46,7 +27,7 @@ initSupabaseClient();
  * Fetch products from the Supabase database products table
  */
 async function fetchProductsFromDatabase() {
-    await loadEnvVariables();
+
     initSupabaseClient();
 
     try {
@@ -54,7 +35,7 @@ async function fetchProductsFromDatabase() {
             const { data, error } = await supabaseClient
                 .from("products")
                 .select("*");
-            
+
             if (error) {
                 console.error("Supabase query error:", error);
                 return await fetchProductsViaRest();
