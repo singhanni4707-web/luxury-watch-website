@@ -532,21 +532,120 @@ function openProductModal(product) {
     const card = document.getElementById('product-modal-card');
     const imgEl = document.getElementById('modal-product-image');
     const brandEl = document.getElementById('modal-product-brand');
+    const headerBrand = document.getElementById('modal-header-brand');
     const nameEl = document.getElementById('modal-product-name');
     const priceEl = document.getElementById('modal-product-price');
+    const mobilePriceEl = document.getElementById('modal-mobile-sticky-price');
     const descEl = document.getElementById('modal-product-description');
+    const availBadge = document.getElementById('modal-availability-badge');
+    const thumbnailsContainer = document.getElementById('modal-thumbnails-container');
+    const specsContainer = document.getElementById('modal-specs-grid');
+    const relatedContainer = document.getElementById('modal-related-products');
 
     if (!backdrop || !card) return;
 
     const imgUrl = getProductImageUrl(product);
     const seriesName = product.series || product.brand || product.category || 'Signature Series';
     const subtitleText = product.description || product.subtitle || 'Exquisite hand-assembled Swiss movement with precision certification and Obsidian finish.';
+    const formattedPrice = formatPrice(product.price);
 
     if (imgEl) imgEl.src = imgUrl;
     if (brandEl) brandEl.innerText = seriesName;
+    if (headerBrand) headerBrand.innerText = (product.brand || 'CALCI').toUpperCase() + ' HOROLOGY';
     if (nameEl) nameEl.innerText = product.name || 'Calci Timepiece';
-    if (priceEl) priceEl.innerText = formatPrice(product.price);
+    if (priceEl) priceEl.innerText = formattedPrice;
+    if (mobilePriceEl) mobilePriceEl.innerText = formattedPrice;
     if (descEl) descEl.innerText = subtitleText;
+
+    // Stock availability
+    const inStock = product.stock === undefined || product.stock > 0;
+    if (availBadge) {
+        if (inStock) {
+            availBadge.className = 'bg-emerald-500/10 border border-emerald-500/40 text-emerald-400 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5';
+            availBadge.innerHTML = `<span class="size-2 rounded-full bg-emerald-400 animate-pulse"></span><span>In Stock (${product.stock !== undefined ? product.stock : 'Available'})</span>`;
+        } else {
+            availBadge.className = 'bg-red-500/10 border border-red-500/40 text-red-400 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5';
+            availBadge.innerHTML = `<span class="size-2 rounded-full bg-red-400"></span><span>Out of Stock</span>`;
+        }
+    }
+
+    // Thumbnails rendering (Main image + 3 variations)
+    if (thumbnailsContainer) {
+        thumbnailsContainer.innerHTML = '';
+        const thumbImages = [imgUrl, imgUrl, imgUrl, imgUrl];
+        thumbImages.forEach((tUrl, idx) => {
+            const thumbBtn = document.createElement('button');
+            thumbBtn.type = 'button';
+            thumbBtn.className = `aspect-square bg-surface-container-high rounded-xl border p-2 flex items-center justify-center cursor-pointer transition-all ${idx === 0 ? 'border-primary shadow-[0_0_15px_rgba(233,193,118,0.3)]' : 'border-outline-variant/50 opacity-70 hover:opacity-100 hover:border-primary/50'}`;
+            thumbBtn.innerHTML = `<img src="${tUrl}" class="w-full h-full object-contain ${idx === 1 ? 'hue-rotate-15' : idx === 2 ? 'brightness-110' : ''}" alt="Thumbnail ${idx + 1}">`;
+            
+            thumbBtn.addEventListener('click', () => {
+                if (imgEl) imgEl.src = tUrl;
+                document.querySelectorAll('#modal-thumbnails-container button').forEach(b => {
+                    b.classList.remove('border-primary', 'shadow-[0_0_15px_rgba(233,193,118,0.3)]');
+                    b.classList.add('border-outline-variant/50', 'opacity-70');
+                });
+                thumbBtn.classList.add('border-primary', 'shadow-[0_0_15px_rgba(233,193,118,0.3)]');
+                thumbBtn.classList.remove('opacity-70');
+            });
+            thumbnailsContainer.appendChild(thumbBtn);
+        });
+    }
+
+    // Specifications Grid (7 points: Movement, Case Material, Strap Material, Water Resistance, Glass Type, Case Diameter, Power Reserve)
+    if (specsContainer) {
+        specsContainer.innerHTML = '';
+        const specs = [
+            { label: 'Movement', val: product.movement || 'COSC Swiss Automatic Caliber 902', icon: 'settings' },
+            { label: 'Case Material', val: product.case_material || 'Obsidian PVD & 24k Gold Accents', icon: 'shield' },
+            { label: 'Strap Material', val: product.strap_material || 'Swiss Hand-Stitched Leather / Gold Mesh', icon: 'watch' },
+            { label: 'Water Resistance', val: product.water_resistance || '100 Meters (10 ATM)', icon: 'water_drop' },
+            { label: 'Glass Type', val: product.glass_type || 'Anti-Reflective Sapphire Crystal', icon: 'diamond' },
+            { label: 'Case Diameter', val: product.case_diameter || '42mm Diameter • 11.5mm Profile', icon: 'straighten' },
+            { label: 'Power Reserve', val: product.power_reserve || '72-Hour Extended Power Reserve', icon: 'bolt' }
+        ];
+
+        specs.forEach(s => {
+            const card = document.createElement('div');
+            card.className = 'bg-surface-container-high border border-outline-variant/40 p-3.5 rounded-xl space-y-1';
+            card.innerHTML = `
+                <div class="flex items-center gap-1.5 text-primary text-[11px] font-bold uppercase tracking-wider">
+                    <span class="material-symbols-outlined text-sm">${s.icon}</span>
+                    <span>${s.label}</span>
+                </div>
+                <p class="text-white font-semibold text-xs leading-snug">${s.val}</p>
+            `;
+            specsContainer.appendChild(card);
+        });
+    }
+
+    // Related Products Showcase (4 timepieces from Supabase)
+    if (relatedContainer) {
+        relatedContainer.innerHTML = '';
+        const relatedList = fetchedProducts.filter(p => p.id !== product.id).slice(0, 4);
+        relatedList.forEach(relItem => {
+            const relCard = document.createElement('div');
+            relCard.className = 'bg-surface-container-high border border-outline-variant/50 rounded-xl p-3 flex flex-col justify-between cursor-pointer hover:border-primary/50 hover:-translate-y-1 transition-all group';
+            const rImg = getProductImageUrl(relItem);
+            const rPrice = formatPrice(relItem.price);
+
+            relCard.innerHTML = `
+                <div class="aspect-square bg-surface-container rounded-lg p-3 flex items-center justify-center mb-2 overflow-hidden">
+                    <img src="${rImg}" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" alt="${relItem.name || 'Related Watch'}">
+                </div>
+                <div>
+                    <span class="text-primary text-[10px] uppercase font-bold tracking-wider block truncate">${relItem.brand || relItem.series || 'CALCI'}</span>
+                    <h5 class="text-white font-bold text-xs truncate group-hover:text-primary transition-colors">${relItem.name || 'Calci Timepiece'}</h5>
+                    <p class="text-white font-mono font-bold text-xs mt-1">${rPrice}</p>
+                </div>
+            `;
+
+            relCard.addEventListener('click', () => {
+                openProductModal(relItem);
+            });
+            relatedContainer.appendChild(relCard);
+        });
+    }
 
     backdrop.classList.remove('hidden', 'pointer-events-none');
     setTimeout(() => {
@@ -866,12 +965,21 @@ function initEcommerceListeners() {
         });
     }
 
-    // Modal Actions: Add to Cart & Buy Now
+    // Modal Actions: Add to Cart & Buy Now & Mobile Sticky Add to Bag
     const modalAddBtn = document.getElementById('modal-add-to-cart');
     const modalBuyBtn = document.getElementById('modal-buy-now');
+    const modalMobileAddBtn = document.getElementById('modal-mobile-add-to-cart');
 
     if (modalAddBtn) {
         modalAddBtn.addEventListener('click', () => {
+            if (activeModalProduct) {
+                addToCart(activeModalProduct, false);
+            }
+        });
+    }
+
+    if (modalMobileAddBtn) {
+        modalMobileAddBtn.addEventListener('click', () => {
             if (activeModalProduct) {
                 addToCart(activeModalProduct, false);
             }
