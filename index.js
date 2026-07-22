@@ -229,34 +229,12 @@ function handleNavbarScroll() {
 }
 
 // 8. Supabase Product Integration & Rendering
-const DEFAULT_PRODUCTS = [
-    {
-        name: "Obsidian Gold",
-        series: "Signature Series",
-        subtitle: "Automatic Movement • 42mm • Skeleton Dial",
-        price: "$12,400",
-        image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuCJ1d0DJTQ3Ber0yT60vjZ1gMWAZ_uENqh41A5rl9BDwkpfKjBapwzxoFURpKIziVM-tk0MwzB4zgC7fvB-rk3E2Z6vmzdw8C-TA9GMViTmBBOjz5yHNxHqeWb37DLi-CR4w6U9EdsS2U293w1YTMMeJUbJ8Qa-evgFYOmRYqfHHsI88ntext6mg9Q1rg_cRuDjJfL4uSC9ysqgHCBuIzMUbqq4Mwz6J2wkE5ia3qsTSi0tPIXEBOmvq6XlU51WYwTMJTvHS7rodmhw"
-    },
-    {
-        name: "Classic Chrono",
-        series: "Heritage Line",
-        subtitle: "Chronograph • 40mm • 24k Gold Bracelet",
-        price: "$15,800",
-        image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuCcw9oT_vxxtgOQUoy_XP6ZnfURLvnq1V8bccXUMmmAcrJLIh-VAuKcXnVP9LGfK1mH1iqg6ijXH7kVQgdFzMWX9GZVFtLQchv6s2v8GleUygniIuc5VMBBeWMdNNSu2DisnJnPvIEcVcv0uPO8umwGWD4QiOXOjeN2TTsAQT6it7FuCkLfJr5rFxBnz7pIAdOEbDjcVTA5_-yzmoirnNFO1KXQYhnklKcANe9fVIquiupKLuAi_2WiB-0mjKZnB0y_FbihOChH1sbN"
-    },
-    {
-        name: "Midnight Masterpiece",
-        series: "Limited Edition",
-        subtitle: "Manual Wind • 44mm • Titanium Case",
-        price: "$24,000",
-        image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuCwE9xOPMZC9vRUneIX68p0UpSciLB3Ug2YBrnaxWna1XUTOif1c3tEynItWtnzi_hfDyt5hxo0gJmPRKHcV3HPZ3CPbxNkCfj6f9IX2n8Mu0sH8Q7LOA21MSzMREIZtjtLkB8A62r6t9oRCUQ0xk6bMZBLpbDCdMiPm36P6mV6Ha_oQhpVG9Sj6BOuc8uWusukPiG_pWqYWqIidFfoiQVe-P8IzZD9UOy0bVA9m-D7a5DHxm3YbEgLxdddy5qzlaBrJEa5AIqCBqQ5"
-    }
-];
+const DEFAULT_PRODUCTS = [];
 
 // Helper function to extract product image URL from Supabase record
 function getProductImageUrl(item) {
     if (!item) return '';
-    return item.image_url || item['image_url'] || item['image-url'] || item.imageUrl || item.image || item.img || '';
+    return item['image-url'] || item.image_url || item['image_url'] || item.imageUrl || item.image || item.img || '';
 }
 
 // -------------------------------------------------------------
@@ -577,7 +555,7 @@ function renderProducts(items, container) {
         const seriesName = item.series || item.brand || item.category || 'Signature Series';
         const subtitleText = item.subtitle || item.description || (item.stock !== undefined ? `Stock: ${item.stock} available` : 'Swiss Precision Movement');
         const priceText = formatPrice(item.price);
-        const imgUrl = getProductImageUrl(item) || (DEFAULT_PRODUCTS[index % DEFAULT_PRODUCTS.length] ? DEFAULT_PRODUCTS[index % DEFAULT_PRODUCTS.length].image_url : '');
+        const imgUrl = getProductImageUrl(item);
 
         const card = document.createElement('div');
         card.className = 'reveal group active cursor-pointer hover:-translate-y-1 transition-all duration-300';

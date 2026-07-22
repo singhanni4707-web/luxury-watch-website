@@ -72,8 +72,6 @@ async function fetchProductsViaRest() {
     }
 }
 
-}
-
 /**
  * Save Order and Order Items to Supabase database tables: orders & order_items
  */
