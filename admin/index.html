@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Calci Admin | Luxury Horology Management</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#e9c176",
+                        "on-primary": "#412d00",
+                        "surface": "#121414",
+                        "surface-dim": "#121414",
+                        "surface-container-lowest": "#0d0e0f",
+                        "surface-container-low": "#1b1c1c",
+                        "surface-container": "#1f2020",
+                        "surface-container-high": "#292a2a",
+                        "surface-container-highest": "#343535",
+                        "surface-bright": "#383939",
+                        "on-surface": "#e3e2e2",
+                        "on-surface-variant": "#d1c5b4",
+                        "outline": "#9a8f80",
+                        "outline-variant": "#4e4639",
+                        "error": "#ffb4ab"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Manrope"],
+                        "headline-lg": ["Bodoni Moda"],
+                        "headline-md": ["Bodoni Moda"]
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="../index.css">
+</head>
+<body class="font-body-md bg-[#121414] text-on-surface selection:bg-primary selection:text-on-primary min-h-screen">
+
+    <!-- 1. ADMIN AUTHENTICATION VIEW -->
+    <div id="admin-login-view" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-[#121414] via-surface-container-lowest to-[#121414]">
+        <div class="w-full max-w-md bg-surface-container border border-outline-variant/60 rounded-2xl p-8 md:p-10 shadow-2xl space-y-8 relative overflow-hidden">
+            <div class="absolute -top-12 -right-12 size-32 bg-primary/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <!-- Logo Header -->
+            <div class="text-center space-y-2">
+                <div class="size-12 rounded-full border border-primary/40 bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
+                    <span class="material-symbols-outlined text-2xl">admin_panel_settings</span>
+                </div>
+                <h1 class="font-headline-lg text-white text-3xl uppercase tracking-wider">CALCI ADMIN</h1>
+                <p class="text-xs text-on-surface-variant uppercase tracking-widest font-label-caps">Secure Horology Management Portal</p>
+            </div>
+
+            <!-- Error Banner -->
+            <div id="login-error-alert" class="hidden bg-error/10 border border-error/40 text-error px-4 py-3 rounded-xl text-xs flex items-center gap-2">
+                <span class="material-symbols-outlined text-base">error</span>
+                <span id="login-error-msg">Invalid credentials.</span>
+            </div>
+
+            <!-- Login Form -->
+            <form id="admin-login-form" class="space-y-5">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider font-bold text-on-surface mb-2">Admin Email</label>
+                    <input id="admin-email" type="email" required placeholder="admin@calci.ch" class="w-full bg-surface-container-high border border-outline-variant/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-colors">
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-wider font-bold text-on-surface mb-2">Password</label>
+                    <input id="admin-password" type="password" required placeholder="••••••••" class="w-full bg-surface-container-high border border-outline-variant/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary transition-colors">
+                </div>
+
+                <button type="submit" id="btn-login" class="w-full bg-primary text-on-primary py-3.5 rounded-full text-xs font-bold uppercase tracking-widest hover:brightness-110 shadow-[0_0_20px_rgba(233,193,118,0.25)] transition-all cursor-pointer flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-sm">lock_open</span>
+                    <span>Sign In to Dashboard</span>
+                </button>
+            </form>
+
+            <div class="text-center border-t border-outline-variant/40 pt-4">
+                <button type="button" id="btn-toggle-signup" class="text-xs text-primary hover:underline uppercase tracking-wider font-bold cursor-pointer">
+                    First time? Initialize Admin Credentials
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. ADMIN DASHBOARD VIEW (Hidden until Authenticated) -->
+    <div id="admin-dashboard-view" class="hidden min-h-screen flex flex-col">
+        <!-- Top Navbar -->
+        <header class="sticky top-0 z-40 bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-8">
+                <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='/'">
+                    <div class="size-6 text-primary">
+                        <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M39.475 21.6262C40.358 21.4363 40.6863 21.5589 40.7581 21.5934C40.7876 21.655 40.8547 21.857 40.8082 22.3336C40.7408 23.0255 40.4502 24.0046 39.8572 25.2301C38.6799 27.6631 36.5085 30.6631 33.5858 33.5858C30.6631 36.5085 27.6632 38.6799 25.2301 39.8572C24.0046 40.4502 23.0255 40.7407 22.3336 40.8082C21.8571 40.8547 21.6551 40.7875 21.5934 40.7581C21.5589 40.6863 21.4363 40.358 21.6262 39.475C21.8562 38.4054 22.4689 36.9657 23.5038 35.2817C24.7575 33.2417 26.5497 30.9744 28.7621 28.762C30.9744 26.5497 33.2417 24.7574 35.2817 23.5037C36.9657 22.4689 38.4054 21.8562 39.475 21.6262Z" fill="currentColor"></path>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold tracking-tight text-white uppercase">Calci Admin</span>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="hidden md:flex items-center gap-2">
+                    <button id="nav-overview" class="tab-btn active px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 border border-primary/30 transition-all cursor-pointer">
+                        Overview
+                    </button>
+                    <button id="nav-orders" class="tab-btn px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider text-on-surface-variant hover:text-white transition-all cursor-pointer">
+                        Orders
+                    </button>
+                    <button id="nav-products" class="tab-btn px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider text-on-surface-variant hover:text-white transition-all cursor-pointer">
+                        Products
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Admin Profile & Logout -->
+            <div class="flex items-center gap-4">
+                <span id="current-admin-user" class="hidden sm:inline-block text-xs text-on-surface-variant font-mono bg-surface-container-high px-3 py-1.5 rounded-full border border-outline-variant/40">admin@calci.ch</span>
+                <button id="btn-logout" class="bg-surface-bright border border-white/10 hover:border-error/40 text-white hover:text-error px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer">
+                    <span class="material-symbols-outlined text-sm">logout</span>
+                    <span class="hidden sm:inline">Logout</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Mobile Navigation bar -->
+        <div class="md:hidden flex items-center justify-around bg-surface-container border-b border-outline-variant px-4 py-2.5">
+            <button id="nav-overview-mob" class="tab-btn-mob active text-xs font-bold uppercase tracking-wider text-primary">Overview</button>
+            <button id="nav-orders-mob" class="tab-btn-mob text-xs font-bold uppercase tracking-wider text-on-surface-variant">Orders</button>
+            <button id="nav-products-mob" class="tab-btn-mob text-xs font-bold uppercase tracking-wider text-on-surface-variant">Products</button>
+        </div>
+
+        <!-- Main Dashboard Workspace -->
+        <main class="flex-1 p-6 md:p-10 max-w-7xl w-full mx-auto space-y-10">
+
+            <!-- OVERVIEW TAB -->
+            <section id="section-overview" class="dashboard-section space-y-8">
+                <div>
+                    <h2 class="font-headline-lg text-white text-3xl">Executive Dashboard</h2>
+                    <p class="text-xs text-on-surface-variant uppercase tracking-widest">Real-time metrics and horology operations summary</p>
+                </div>
+
+                <!-- Overview Metrics Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Total Orders -->
+                    <div class="bg-surface-container p-6 rounded-2xl border border-outline-variant/60 flex items-center justify-between shadow-lg">
+                        <div>
+                            <p class="text-xs uppercase tracking-wider text-on-surface-variant font-bold mb-1">Total Orders</p>
+                            <h3 id="stat-total-orders" class="text-3xl font-bold text-white font-mono">0</h3>
+                        </div>
+                        <div class="size-12 rounded-xl bg-primary/10 border border-primary/30 text-primary flex items-center justify-center">
+                            <span class="material-symbols-outlined text-2xl">local_shipping</span>
+                        </div>
+                    </div>
+
+                    <!-- Pending Orders -->
+                    <div class="bg-surface-container p-6 rounded-2xl border border-outline-variant/60 flex items-center justify-between shadow-lg">
+                        <div>
+                            <p class="text-xs uppercase tracking-wider text-on-surface-variant font-bold mb-1">Pending Orders</p>
+                            <h3 id="stat-pending-orders" class="text-3xl font-bold text-yellow-400 font-mono">0</h3>
+                        </div>
+                        <div class="size-12 rounded-xl bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-2xl">pending</span>
+                        </div>
+                    </div>
+
+                    <!-- Total Revenue -->
+                    <div class="bg-surface-container p-6 rounded-2xl border border-outline-variant/60 flex items-center justify-between shadow-lg">
+                        <div>
+                            <p class="text-xs uppercase tracking-wider text-on-surface-variant font-bold mb-1">Total Revenue</p>
+                            <h3 id="stat-total-revenue" class="text-3xl font-bold text-primary font-mono">$0</h3>
+                        </div>
+                        <div class="size-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-2xl">payments</span>
+                        </div>
+                    </div>
+
+                    <!-- Active Products -->
+                    <div class="bg-surface-container p-6 rounded-2xl border border-outline-variant/60 flex items-center justify-between shadow-lg">
+                        <div>
+                            <p class="text-xs uppercase tracking-wider text-on-surface-variant font-bold mb-1">Active Products</p>
+                            <h3 id="stat-total-products" class="text-3xl font-bold text-white font-mono">0</h3>
+                        </div>
+                        <div class="size-12 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-2xl">watch</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Preview -->
+                <div class="bg-surface-container p-6 rounded-2xl border border-outline-variant/60 space-y-4">
+                    <div class="flex items-center justify-between border-b border-outline-variant/40 pb-4">
+                        <h3 class="font-headline-md text-white text-xl">Recent Acquisition Orders</h3>
+                        <button id="btn-view-all-orders" class="text-xs text-primary hover:underline uppercase tracking-wider font-bold cursor-pointer">View All Orders →</button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="uppercase tracking-wider text-on-surface-variant bg-surface-container-high/60 border-b border-outline-variant/40">
+                                <tr>
+                                    <th class="p-3">Order Ref</th>
+                                    <th class="p-3">Client</th>
+                                    <th class="p-3">Total Amount</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3">Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-recent-orders" class="divide-y divide-outline-variant/30 text-white">
+                                <!-- Dynamic Recent Orders -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ORDERS TAB -->
+            <section id="section-orders" class="dashboard-section hidden space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="font-headline-lg text-white text-3xl">Acquisition Orders</h2>
+                        <p class="text-xs text-on-surface-variant uppercase tracking-widest">Manage client orders and update fulfillment status</p>
+                    </div>
+                    <button id="btn-refresh-orders" class="bg-surface-bright border border-white/10 hover:border-primary/40 text-white hover:text-primary px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer self-start sm:self-auto">
+                        <span class="material-symbols-outlined text-sm">refresh</span> Refresh Orders
+                    </button>
+                </div>
+
+                <!-- Orders Table Container -->
+                <div class="bg-surface-container rounded-2xl border border-outline-variant/60 overflow-hidden shadow-xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="uppercase tracking-wider text-on-surface-variant bg-surface-container-high border-b border-outline-variant/60">
+                                <tr>
+                                    <th class="p-4">Order ID</th>
+                                    <th class="p-4">Client Name</th>
+                                    <th class="p-4">Contact Info</th>
+                                    <th class="p-4">Amount</th>
+                                    <th class="p-4">Order Date</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-orders-full" class="divide-y divide-outline-variant/30 text-white">
+                                <!-- Dynamic Full Orders -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PRODUCTS TAB -->
+            <section id="section-products" class="dashboard-section hidden space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="font-headline-lg text-white text-3xl">Timepiece Catalog</h2>
+                        <p class="text-xs text-on-surface-variant uppercase tracking-widest">Add, edit, or delete items from the Supabase products table</p>
+                    </div>
+                    <button id="btn-open-add-product" class="bg-primary text-on-primary px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:brightness-110 shadow-[0_0_20px_rgba(233,193,118,0.25)] transition-all flex items-center gap-2 cursor-pointer self-start sm:self-auto">
+                        <span class="material-symbols-outlined text-sm">add</span> Add New Product
+                    </button>
+                </div>
+
+                <!-- Products Table Container -->
+                <div class="bg-surface-container rounded-2xl border border-outline-variant/60 overflow-hidden shadow-xl">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="uppercase tracking-wider text-on-surface-variant bg-surface-container-high border-b border-outline-variant/60">
+                                <tr>
+                                    <th class="p-4">Preview</th>
+                                    <th class="p-4">Product Name</th>
+                                    <th class="p-4">Brand</th>
+                                    <th class="p-4">Price</th>
+                                    <th class="p-4">Stock</th>
+                                    <th class="p-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-products-list" class="divide-y divide-outline-variant/30 text-white">
+                                <!-- Dynamic Products -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 3. ORDER DETAILS MODAL -->
+    <div id="admin-order-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 md:p-8 bg-black/80 backdrop-blur-md transition-all duration-300 opacity-0 pointer-events-none">
+        <div class="relative w-full max-w-3xl bg-surface-container border border-outline-variant rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b border-outline-variant/60 bg-surface-container-lowest flex items-center justify-between">
+                <div>
+                    <h3 class="font-headline-md text-white text-xl">Order Specification</h3>
+                    <p id="modal-order-id-label" class="text-xs text-primary font-mono">ID: -</p>
+                </div>
+                <button id="close-admin-order-modal" class="size-9 rounded-full bg-surface-bright/50 hover:bg-surface-bright text-white hover:text-primary transition-all flex items-center justify-center cursor-pointer">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-6 custom-scrollbar text-xs">
+                <!-- Client Info Card -->
+                <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/40 space-y-3">
+                    <h4 class="text-primary font-label-caps uppercase text-[10px] tracking-widest">Client & Shipping Information</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-white">
+                        <p><span class="text-on-surface-variant">Name:</span> <strong id="modal-client-name">-</strong></p>
+                        <p><span class="text-on-surface-variant">Email:</span> <span id="modal-client-email">-</span></p>
+                        <p><span class="text-on-surface-variant">Phone:</span> <span id="modal-client-phone">-</span></p>
+                        <p><span class="text-on-surface-variant">City/State:</span> <span id="modal-client-citystate">-</span></p>
+                        <p class="sm:col-span-2"><span class="text-on-surface-variant">Complete Address:</span> <span id="modal-client-address">-</span></p>
+                    </div>
+                </div>
+
+                <!-- Ordered Items List -->
+                <div class="space-y-3">
+                    <h4 class="text-primary font-label-caps uppercase text-[10px] tracking-widest">Acquired Timepieces (order_items)</h4>
+                    <div id="modal-order-items-list" class="space-y-2">
+                        <!-- Dynamic items -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. ADD / EDIT PRODUCT MODAL -->
+    <div id="admin-product-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 md:p-8 bg-black/80 backdrop-blur-md transition-all duration-300 opacity-0 pointer-events-none">
+        <div class="relative w-full max-w-xl bg-surface-container border border-outline-variant rounded-2xl overflow-hidden shadow-2xl max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b border-outline-variant/60 bg-surface-container-lowest flex items-center justify-between">
+                <h3 id="product-modal-title" class="font-headline-md text-white text-xl">Add New Product</h3>
+                <button id="close-admin-product-modal" class="size-9 rounded-full bg-surface-bright/50 hover:bg-surface-bright text-white hover:text-primary transition-all flex items-center justify-center cursor-pointer">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <form id="admin-product-form" class="p-6 overflow-y-auto space-y-4 custom-scrollbar">
+                <input type="hidden" id="prod-form-id">
+
+                <div>
+                    <label class="block text-xs uppercase tracking-wider font-bold text-on-surface mb-1.5">Product Name *</label>
+                    <input id="prod-form-name" required type="text" placeholder="CALCI Royal Chronograph" class="w-full bg-surface-container-high border border-outline-variant/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider font-bold text-on-surface mb-1.5">Brand *</label>
+                        <input id="prod-form-brand" required type="text" placeholder="CALCI" class="w-full bg-surface-container-high border border-outline-variant/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider font-bold text-on-surface mb-1.5">Price ($) *</label>
+                        <input id="prod-form-price" required type="number" step="0.01" placeholder="45000" class="w-full bg-surface-container-high border border-outline-variant/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider font-bold text-on-surface mb-1.5">Stock Count *</label>
+                        <input id="prod-form-stock" required type="number" placeholder="20" class="w-full bg-surface-container-high border border-outline-variant/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider font-bold text-on-surface mb-1.5">Image URL *</label>
+                        <input id="prod-form-image" required type="url" placeholder="https://..." class="w-full bg-surface-container-high border border-outline-variant/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-wider font-bold text-on-surface mb-1.5">Description *</label>
+                    <textarea id="prod-form-desc" required rows="3" placeholder="Swiss-inspired luxury timepiece..." class="w-full bg-surface-container-high border border-outline-variant/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary resize-none"></textarea>
+                </div>
+
+                <div class="pt-4 border-t border-outline-variant/60 flex justify-end gap-3">
+                    <button type="button" id="btn-cancel-product" class="px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest text-on-surface-variant hover:text-white transition-all cursor-pointer">Cancel</button>
+                    <button type="submit" id="btn-save-product" class="bg-primary text-on-primary px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:brightness-110 shadow-[0_0_20px_rgba(233,193,118,0.25)] transition-all cursor-pointer">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../supabaseClient.js"></script>
+    <script src="../admin.js"></script>
+</body>
+</html>

@@ -22,10 +22,10 @@ while ($listener.IsListening) {
         $response = $context.Response
         
         $urlPath = $request.Url.LocalPath
-        if ($urlPath -eq "/") {
+        $cleanPath = $urlPath.TrimEnd('/').ToLower()
+        if ($cleanPath -eq "" -or $cleanPath -eq "/") {
             $urlPath = "/index.html"
-        }
-        if ($urlPath -eq "/admin") {
+        } elseif ($cleanPath -eq "/admin") {
             $urlPath = "/admin.html"
         }
         
