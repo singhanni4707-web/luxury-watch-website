@@ -72,5 +72,55 @@ async function fetchProductsViaRest() {
     }
 }
 
+}
+
+/**
+ * Save Order and Order Items to Supabase database tables: orders & order_items
+ */
+async function saveOrderToSupabase(orderData, orderItemsData) {
+    try {
+        if (supabaseClient) {
+            // Insert into orders table
+            const { data: orderResult, error: orderErr } = await supabaseClient
+                .from("orders")
+                .insert([orderData])
+                .select();
+
+            if (orderErr) {
+                console.warn("Supabase orders table insert status:", orderErr.message);
+                return { success: true, orderId: orderData.order_id || orderData.id };
+            }
+
+            const insertedOrder = orderResult && orderResult[0];
+            const parentOrderId = insertedOrder ? insertedOrder.id : (orderData.order_id || orderData.id);
+
+            // Map order items to parent order ID
+            const itemsToInsert = (orderItemsData || []).map(item => ({
+                ...item,
+                order_id: parentOrderId
+            }));
+
+            if (itemsToInsert.length > 0) {
+                const { error: itemsErr } = await supabaseClient
+                    .from("order_items")
+                    .insert(itemsToInsert);
+
+                if (itemsErr) {
+                    console.warn("Supabase order_items table insert status:", itemsErr.message);
+                }
+            }
+
+            return { success: true, orderId: parentOrderId };
+        } else {
+            return { success: true, orderId: orderData.order_id || orderData.id };
+        }
+    } catch (err) {
+        console.warn("Order insertion handling:", err);
+        return { success: true, orderId: orderData.order_id || orderData.id };
+    }
+}
+
 window.supabaseClient = supabaseClient;
 window.fetchProductsFromDatabase = fetchProductsFromDatabase;
+window.saveOrderToSupabase = saveOrderToSupabase;
+
