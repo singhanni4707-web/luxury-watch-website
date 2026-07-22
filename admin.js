@@ -28,7 +28,7 @@ async function checkAdminAuth() {
     let isAuthenticated = false;
     let userEmail = "";
 
-    // 1. Check Supabase Auth session
+    // Check Supabase Auth session strictly
     if (window.supabaseClient && window.supabaseClient.auth) {
         try {
             const { data: { session } } = await window.supabaseClient.auth.getSession();
@@ -38,22 +38,6 @@ async function checkAdminAuth() {
             }
         } catch (e) {
             console.warn("Supabase auth session check notice:", e);
-        }
-    }
-
-    // 2. Fallback check local admin session
-    if (!isAuthenticated) {
-        const localSession = localStorage.getItem(ADMIN_SESSION_KEY);
-        if (localSession) {
-            try {
-                const parsed = JSON.parse(localSession);
-                if (parsed && parsed.email) {
-                    isAuthenticated = true;
-                    userEmail = parsed.email;
-                }
-            } catch (e) {
-                localStorage.removeItem(ADMIN_SESSION_KEY);
-            }
         }
     }
 
@@ -105,19 +89,23 @@ async function handleAdminLogin(e) {
                 authErrorMsg = error.message;
             } else if (data && data.session) {
                 authSuccess = true;
+            } else {
+                authErrorMsg = "No session returned from Supabase Auth.";
             }
         } catch (err) {
             authErrorMsg = err.message;
         }
+    } else {
+        authErrorMsg = "Supabase Auth is not initialized. Please refresh the page.";
     }
 
     if (btn) btn.disabled = false;
 
     if (authSuccess) {
-        localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({ email, timestamp: Date.now() }));
-        checkAdminAuth();
+        if (passEl) passEl.value = "";
+        await checkAdminAuth();
     } else {
-        if (errMsg) errMsg.innerText = authErrorMsg || "Invalid credentials. Please click 'Initialize Admin Credentials' if logging in for the first time.";
+        if (errMsg) errMsg.innerText = authErrorMsg || "Invalid credentials.";
         if (errAlert) errAlert.classList.remove("hidden");
     }
 }
@@ -130,8 +118,7 @@ async function handleAdminLogout() {
             console.warn("Supabase signout notice:", e);
         }
     }
-    localStorage.removeItem(ADMIN_SESSION_KEY);
-    checkAdminAuth();
+    await checkAdminAuth();
 }
 
 // -------------------------------------------------------------
@@ -783,26 +770,27 @@ async function handleAdminSignup(e) {
                 });
 
                 if (signInErr) {
-                    authError = error.message;
-                } else {
+                    authError = signInErr.message;
+                } else if (signInData && signInData.session) {
                     authSuccess = true;
                 }
-            } else {
+            } else if (data && data.session) {
                 authSuccess = true;
+            } else if (data && data.user) {
+                // User created but session null (e.g. email confirmation required)
+                authError = "Admin account created in Supabase. Please confirm email or sign in if confirmed.";
             }
         } catch (err) {
             authError = err.message;
         }
     } else {
-        authSuccess = true;
+        authError = "Supabase Auth client not loaded.";
     }
 
     if (btn) btn.disabled = false;
 
     if (authSuccess) {
         if (succAlert) succAlert.classList.remove("hidden");
-        localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({ email, timestamp: Date.now() }));
-
         setTimeout(() => {
             closeSignupModal();
             checkAdminAuth();
@@ -816,6 +804,15 @@ async function handleAdminSignup(e) {
 document.addEventListener("DOMContentLoaded", () => {
     // Check initial auth state
     checkAdminAuth();
+
+    // Attach Supabase Auth State Change Listener
+    if (window.supabaseClient && window.supabaseClient.auth) {
+        window.supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'SIGNED_OUT') {
+                checkAdminAuth();
+            }
+        });
+    }
 
     // Login Form Submit
     const loginForm = document.getElementById("admin-login-form");

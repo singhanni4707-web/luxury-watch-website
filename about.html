@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>About CALCI | The Art of Swiss Precision</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#e9c176",
+                        "on-primary": "#412d00",
+                        "surface": "#121414",
+                        "surface-container-lowest": "#0d0e0f",
+                        "surface-container-low": "#1b1c1c",
+                        "surface-container": "#1f2020",
+                        "surface-container-high": "#292a2a",
+                        "surface-bright": "#383939",
+                        "on-surface": "#e3e2e2",
+                        "on-surface-variant": "#d1c5b4",
+                        "outline": "#9a8f80",
+                        "outline-variant": "#4e4639"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Manrope"],
+                        "headline-lg": ["Bodoni Moda"],
+                        "display-lg": ["Bodoni Moda"]
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body class="font-body-md bg-[#121414] text-on-surface selection:bg-primary selection:text-on-primary min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-[#121414]/90 backdrop-blur-md border-b border-outline-variant px-6 h-20 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="size-6 text-primary">
+                    <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M39.475 21.6262C40.358 21.4363 40.6863 21.5589 40.7581 21.5934C40.7876 21.655 40.8547 21.857 40.8082 22.3336C40.7408 23.0255 40.4502 24.0046 39.8572 25.2301C38.6799 27.6631 36.5085 30.6631 33.5858 33.5858C30.6631 36.5085 27.6632 38.6799 25.2301 39.8572C24.0046 40.4502 23.0255 40.7407 22.3336 40.8082C21.8571 40.8547 21.6551 40.7875 21.5934 40.7581C21.5589 40.6863 21.4363 40.358 21.6262 39.475C21.8562 38.4054 22.4689 36.9657 23.5038 35.2817C24.7575 33.2417 26.5497 30.9744 28.7621 28.762C30.9744 26.5497 33.2417 24.7574 35.2817 23.5037C36.9657 22.4689 38.4054 21.8562 39.475 21.6262Z" fill="currentColor"></path>
+                    </svg>
+                </div>
+                <span class="text-xl font-bold tracking-tight text-white uppercase">Calci</span>
+            </a>
+            <div class="hidden md:flex items-center gap-8">
+                <a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="index.html">Home</a>
+                <a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="index.html#collection">Shop</a>
+                <a class="text-xs font-label-caps uppercase tracking-widest text-primary border-b border-primary" href="about.html">About</a>
+                <a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="contact.html">Contact</a>
+                <a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="admin.html">Admin</a>
+            </div>
+            <a href="index.html#collection" class="bg-primary text-on-primary px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:brightness-110 transition-all">
+                Explore Watches
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-5xl mx-auto px-6 py-16 space-y-16">
+        <!-- Hero Title -->
+        <div class="text-center space-y-4">
+            <span class="text-primary text-xs uppercase tracking-[0.3em] font-bold block">Est. 1924 • Geneva, Switzerland</span>
+            <h1 class="font-display-lg text-white text-4xl md:text-6xl uppercase tracking-wider">A Century of Swiss Mastery</h1>
+            <p class="text-on-surface-variant text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+                At CALCI, we merge classical horology with contemporary obsidian aesthetics to craft timepieces that transcend trends and celebrate precision.
+            </p>
+        </div>
+
+        <!-- Story Grid -->
+        <div class="grid md:grid-cols-2 gap-12 items-center bg-surface-container border border-outline-variant/60 rounded-2xl p-8 md:p-12">
+            <div class="space-y-6">
+                <h2 class="font-headline-lg text-white text-3xl">Handcrafted Precision</h2>
+                <p class="text-on-surface-variant text-sm leading-relaxed">
+                    Founded in the heart of Geneva, Switzerland, CALCI operates on a singular philosophy: every timepiece is a mechanical symphony. Our master watchmakers assemble over 300 micro-components by hand, ensuring that each caliber achieves COSC-certified chronometer status.
+                </p>
+                <p class="text-on-surface-variant text-sm leading-relaxed">
+                    From sapphire crystal cases to hand-engraved rotor plates, our creations represent an unbroken tradition of Swiss horological art.
+                </p>
+            </div>
+            <div class="space-y-4">
+                <div class="bg-surface-container-high p-6 rounded-xl border border-primary/20 flex items-center gap-4">
+                    <span class="material-symbols-outlined text-primary text-3xl">verified</span>
+                    <div>
+                        <h4 class="text-white font-bold text-sm uppercase tracking-wider">COSC Certified</h4>
+                        <p class="text-xs text-on-surface-variant">Precision tested to -4/+6 seconds daily accuracy.</p>
+                    </div>
+                </div>
+                <div class="bg-surface-container-high p-6 rounded-xl border border-primary/20 flex items-center gap-4">
+                    <span class="material-symbols-outlined text-primary text-3xl">diamond</span>
+                    <div>
+                        <h4 class="text-white font-bold text-sm uppercase tracking-wider">24k Gold & Sapphire</h4>
+                        <p class="text-xs text-on-surface-variant">Scratch-resistant sapphire glass with anti-reflective coating.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface-container-lowest border-t border-outline-variant py-10 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <p class="text-on-surface-variant text-xs">© 2026 CALCI Horology. All rights reserved.</p>
+            <div class="flex flex-wrap gap-6 text-xs">
+                <a class="text-on-surface-variant hover:text-white transition-colors" href="index.html">Home</a>
+                <a class="text-on-surface-variant hover:text-white transition-colors" href="contact.html">Contact</a>
+                <a class="text-on-surface-variant hover:text-white transition-colors" href="privacy.html">Privacy Policy</a>
+                <a class="text-on-surface-variant hover:text-white transition-colors" href="terms.html">Terms & Conditions</a>
+                <a class="text-on-surface-variant hover:text-white transition-colors" href="shipping.html">Shipping Policy</a>
+                <a class="text-on-surface-variant hover:text-white transition-colors" href="refund.html">Returns Policy</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

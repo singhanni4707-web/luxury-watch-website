@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Contact & Concierge | CALCI Luxury Horology</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#e9c176",
+                        "on-primary": "#412d00",
+                        "surface": "#121414",
+                        "surface-container-lowest": "#0d0e0f",
+                        "surface-container-low": "#1b1c1c",
+                        "surface-container": "#1f2020",
+                        "surface-container-high": "#292a2a",
+                        "surface-bright": "#383939",
+                        "on-surface": "#e3e2e2",
+                        "on-surface-variant": "#d1c5b4",
+                        "outline": "#9a8f80",
+                        "outline-variant": "#4e4639"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Manrope"],
+                        "headline-lg": ["Bodoni Moda"],
+                        "display-lg": ["Bodoni Moda"]
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body class="font-body-md bg-[#121414] text-on-surface selection:bg-primary selection:text-on-primary min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-[#121414]/90 backdrop-blur-md border-b border-outline-variant px-6 h-20 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto w-full flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="size-6 text-primary">
+                    <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M39.475 21.6262C40.358 21.4363 40.6863 21.5589 40.7581 21.5934C40.7876 21.655 40.8547 21.857 40.8082 22.3336C40.7408 23.0255 40.4502 24.0046 39.8572 25.2301C38.6799 27.6631 36.5085 30.6631 33.5858 33.5858C30.6631 36.5085 27.6632 38.6799 25.2301 39.8572C24.0046 40.4502 23.0255 40.7407 22.3336 40.8082C21.8571 40.8547 21.6551 40.7875 21.5934 40.7581C21.5589 40.6863 21.4363 40.358 21.6262 39.475C21.8562 38.4054 22.4689 36.9657 23.5038 35.2817C24.7575 33.2417 26.5497 30.9744 28.7621 28.762C30.9744 26.5497 33.2417 24.7574 35.2817 23.5037C36.9657 22.4689 38.4054 21.8562 39.475 21.6262Z" fill="currentColor"></path>
+                    </svg>
+                </div>
+                <span class="text-xl font-bold tracking-tight text-white uppercase">Calci</span>
+            </a>
+            <div class="hidden md:flex items-center gap-8">
+                <a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="index.html">Home</a>
+                <a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="index.html#collection">Shop</a>
+                <a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="about.html">About</a>
+                <a class="text-xs font-label-caps uppercase tracking-widest text-primary border-b border-primary" href="contact.html">Contact</a>
+                <a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="admin.html">Admin</a>
+            </div>
+            <a href="index.html#collection" class="bg-primary text-on-primary px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:brightness-110 transition-all">
+                Collection
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-5xl mx-auto px-6 py-16 space-y-16">
+        <!-- Hero Title -->
+        <div class="text-center space-y-4">
+            <span class="text-primary text-xs uppercase tracking-[0.3em] font-bold block">Boutique Concierge</span>
+            <h1 class="font-display-lg text-white text-4xl md:text-6xl uppercase tracking-wider">Inquire & Appointments</h1>
+            <p class="text-on-surface-variant text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+                Connect with our dedicated luxury horology concierge for private viewings, custom timepieces, or acquisition inquiries.
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-12 gap-8">
+            <!-- Concierge Form -->
+            <div class="md:col-span-7 bg-surface-container border border-outline-variant/60 rounded-2xl p-8 space-y-6">
+                <h3 class="font-headline-lg text-white text-2xl">Send an Inquiry</h3>
+                <div id="contact-success-alert" class="hidden bg-emerald-500/10 border border-emerald-500/40 text-emerald-400 p-4 rounded-xl text-xs flex items-center gap-2">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    <span>Your message has been dispatched to our Geneva Concierge. We will reply within 24 hours.</span>
+                </div>
+                <form id="contact-form" class="space-y-4">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider font-bold text-on-surface mb-1.5">Your Full Name *</label>
+                        <input required type="text" placeholder="Lord / Lady / Full Name" class="w-full bg-surface-container-high border border-outline-variant/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider font-bold text-on-surface mb-1.5">Email Address *</label>
+                        <input required type="email" placeholder="client@domain.com" class="w-full bg-surface-container-high border border-outline-variant/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider font-bold text-on-surface mb-1.5">Subject / Interested Model</label>
+                        <input type="text" placeholder="CALCI Apex Chronograph / Private Viewing" class="w-full bg-surface-container-high border border-outline-variant/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider font-bold text-on-surface mb-1.5">Your Message *</label>
+                        <textarea required rows="4" placeholder="Please specify your request or appointment preference..." class="w-full bg-surface-container-high border border-outline-variant/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary resize-none"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-primary text-on-primary py-3.5 rounded-full text-xs font-bold uppercase tracking-widest hover:brightness-110 transition-all cursor-pointer">
+                        Dispatch Inquiry
+                    </button>
+                </form>
+            </div>
+
+            <!-- Geneva HQ Details -->
+            <div class="md:col-span-5 space-y-6">
+                <div class="bg-surface-container border border-outline-variant/60 rounded-2xl p-8 space-y-6">
+                    <h3 class="font-headline-lg text-white text-2xl">Geneva Flagship</h3>
+                    <div class="space-y-4 text-xs text-on-surface-variant">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary">location_on</span>
+                            <div>
+                                <p class="text-white font-bold">Rue du Rhône 42</p>
+                                <p>1204 Geneva, Switzerland</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary">call</span>
+                            <div>
+                                <p class="text-white font-bold">+41 22 819 9000</p>
+                                <p>Mon - Sat: 10:00 - 19:00 CET</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined text-primary">mail</span>
+                            <div>
+                                <p class="text-white font-bold">concierge@calci.ch</p>
+                                <p>24/7 Dedicated Client Relations</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface-container-lowest border-t border-outline-variant py-10 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <p class="text-on-surface-variant text-xs">© 2026 CALCI Horology. All rights reserved.</p>
+            <div class="flex flex-wrap gap-6 text-xs">
+                <a class="text-on-surface-variant hover:text-white transition-colors" href="index.html">Home</a>
+                <a class="text-on-surface-variant hover:text-white transition-colors" href="about.html">About Us</a>
+                <a class="text-on-surface-variant hover:text-white transition-colors" href="privacy.html">Privacy Policy</a>
+                <a class="text-on-surface-variant hover:text-white transition-colors" href="terms.html">Terms & Conditions</a>
+                <a class="text-on-surface-variant hover:text-white transition-colors" href="shipping.html">Shipping Policy</a>
+                <a class="text-on-surface-variant hover:text-white transition-colors" href="refund.html">Returns Policy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('contact-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const alert = document.getElementById('contact-success-alert');
+            if (alert) alert.classList.remove('hidden');
+            e.target.reset();
+        });
+    </script>
+</body>
+</html>

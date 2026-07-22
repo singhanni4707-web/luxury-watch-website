@@ -27,6 +27,18 @@ while ($listener.IsListening) {
             $urlPath = "/index.html"
         } elseif ($cleanPath -eq "/admin") {
             $urlPath = "/admin.html"
+        } elseif ($cleanPath -eq "/about") {
+            $urlPath = "/about.html"
+        } elseif ($cleanPath -eq "/contact") {
+            $urlPath = "/contact.html"
+        } elseif ($cleanPath -eq "/privacy") {
+            $urlPath = "/privacy.html"
+        } elseif ($cleanPath -eq "/terms") {
+            $urlPath = "/terms.html"
+        } elseif ($cleanPath -eq "/shipping") {
+            $urlPath = "/shipping.html"
+        } elseif ($cleanPath -eq "/refund") {
+            $urlPath = "/refund.html"
         }
         
         $filePath = ""

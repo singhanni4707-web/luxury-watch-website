@@ -101,14 +101,15 @@
                 </div>
                 <span class="text-xl font-bold tracking-tight text-white uppercase">Calci</span>
             </div>
-            <div class="hidden md:flex items-center gap-10">
-                <a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="#heritage">Heritage</a>
-                <a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="#collection">Collection</a>
-                <a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="#craftsmanship">Craftsmanship</a>
-                <a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="#gallery">Gallery</a>
+            <div class="hidden md:flex items-center gap-8">
+                <a class="nav-link text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors py-1 border-b-2 border-transparent" href="#scroll-container">Home</a>
+                <a class="nav-link text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors py-1 border-b-2 border-transparent" href="#collection">Shop</a>
+                <a class="nav-link text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors py-1 border-b-2 border-transparent" href="#heritage">About</a>
+                <a class="nav-link text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors py-1 border-b-2 border-transparent" href="#footer">Contact</a>
+                <a class="nav-link text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors py-1 border-b-2 border-transparent" href="admin.html">Admin</a>
             </div>
-            <div class="flex items-center gap-4">
-                <button id="open-track-btn" class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors flex items-center gap-1 cursor-pointer mr-2">
+            <div class="flex items-center gap-3">
+                <button id="open-track-btn" class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors flex items-center gap-1 cursor-pointer mr-1">
                     <span class="material-symbols-outlined text-base">local_shipping</span>
                     <span class="hidden sm:inline">Track Order</span>
                 </button>
@@ -116,7 +117,7 @@
                     <span class="material-symbols-outlined text-xl">shopping_bag</span>
                     <span id="cart-count-badge" class="absolute -top-1 -right-1 bg-primary text-on-primary font-bold text-[10px] size-5 rounded-full flex items-center justify-center shadow-lg transition-transform scale-0 opacity-0">0</span>
                 </button>
-                <a href="#footer" class="hidden sm:inline-block bg-primary text-on-primary px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:brightness-110 transition-all">
+                <a href="#footer" id="btn-inquire-nav" class="hidden sm:inline-block bg-primary text-on-primary px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:brightness-110 transition-all">
                     Inquire
                 </a>
             </div>
@@ -184,46 +185,101 @@
 
         <!-- 3. Featured Collection -->
         <section id="collection" class="py-section-gap px-6 md:px-margin-desktop">
-            <div class="max-w-7xl mx-auto">
-                <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+            <div class="max-w-7xl mx-auto space-y-8">
+                <!-- Header Title & Top Control Bar (Search & Sort) -->
+                <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-outline-variant/40">
                     <div>
-                        <span class="text-primary font-label-caps uppercase mb-4 block">Curated Selection</span>
-                        <h2 class="font-headline-lg text-white">Featured Collection</h2>
+                        <span class="text-primary font-label-caps uppercase mb-2 block">Curated Selection</span>
+                        <h2 class="font-headline-lg text-white text-3xl md:text-4xl">Featured Collection</h2>
                     </div>
-                    <a class="text-sm font-bold text-primary flex items-center gap-2 hover:translate-x-2 transition-transform" href="#">
-                        View Full Catalog <span class="material-symbols-outlined">trending_flat</span>
-                    </a>
+
+                    <!-- Search Bar & Sort Dropdown -->
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
+                        <!-- Search Box (Product Name & Brand) -->
+                        <div class="relative flex-1 sm:w-80">
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary text-xl">search</span>
+                            <input id="product-search-input" type="text" placeholder="Search by name or brand..." class="w-full bg-surface-container-high border border-outline-variant/60 rounded-full pl-11 pr-10 py-3 text-xs text-white placeholder-on-surface-variant/60 focus:outline-none focus:border-primary transition-all">
+                            <button id="btn-clear-search" type="button" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-white p-1 cursor-pointer">
+                                <span class="material-symbols-outlined text-base">cancel</span>
+                            </button>
+                        </div>
+
+                        <!-- Sort Dropdown (Featured, Price Low to High, Price High to Low, Newest) -->
+                        <div class="flex items-center gap-2">
+                            <span class="text-on-surface-variant text-xs font-bold uppercase tracking-wider whitespace-nowrap">Sort:</span>
+                            <select id="product-sort-select" class="bg-surface-container-high border border-outline-variant/60 rounded-full px-4 py-3 text-xs text-white focus:outline-none focus:border-primary cursor-pointer font-semibold">
+                                <option value="featured">Featured</option>
+                                <option value="price-low">Price Low to High</option>
+                                <option value="price-high">Price High to Low</option>
+                                <option value="newest">Newest</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div id="products-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- Watch 1 -->
-                    <div class="reveal group">
-                        <div class="relative aspect-[3/4] bg-surface-container-high rounded-xl overflow-hidden mb-6 flex items-center justify-center p-12 transition-all duration-500 group-hover:shadow-[0_0_50px_-12px_rgba(233,193,118,0.3)]">
-                            <img class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700" alt="Obsidian Gold watch" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJ1d0DJTQ3Ber0yT60vjZ1gMWAZ_uENqh41A5rl9BDwkpfKjBapwzxoFURpKIziVM-tk0MwzB4zgC7fvB-rk3E2Z6vmzdw8C-TA9GMViTmBBOjz5yHNxHqeWb37DLi-CR4w6U9EdsS2U293w1YTMMeJUbJ8Qa-evgFYOmRYqfHHsI88ntext6mg9Q1rg_cRuDjJfL4uSC9ysqgHCBuIzMUbqq4Mwz6J2wkE5ia3qsTSi0tPIXEBOmvq6XlU51WYwTMJTvHS7rodmhw">
+
+                <!-- Main Section Grid: Filter Sidebar + Products Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
+                    <!-- Filter Sidebar -->
+                    <aside class="md:col-span-1 bg-surface-container border border-outline-variant/60 rounded-2xl p-6 space-y-6 sticky top-24 shadow-xl">
+                        <div class="flex items-center justify-between pb-4 border-b border-outline-variant/40">
+                            <h3 class="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-lg">tune</span>
+                                <span>Filter Products</span>
+                            </h3>
+                            <button id="btn-clear-all-filters" type="button" class="text-[11px] text-primary hover:underline font-bold uppercase tracking-wider cursor-pointer">
+                                Clear All
+                            </button>
                         </div>
-                        <p class="text-primary text-xs font-label-caps uppercase mb-2">Signature Series</p>
-                        <h3 class="font-headline-md text-white mb-2">Obsidian Gold</h3>
-                        <p class="text-on-surface-variant text-sm font-body-md mb-4">Automatic Movement • 42mm • Skeleton Dial</p>
-                        <p class="text-white font-bold text-lg">$12,400</p>
-                    </div>
-                    <!-- Watch 2 -->
-                    <div class="reveal group" style="transition-delay: 200ms;">
-                        <div class="relative aspect-[3/4] bg-surface-container-high rounded-xl overflow-hidden mb-6 flex items-center justify-center p-12 transition-all duration-500 group-hover:shadow-[0_0_50px_-12px_rgba(233,193,118,0.3)]">
-                            <img class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700" alt="Classic Chrono watch" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcw9oT_vxxtgOQUoy_XP6ZnfURLvnq1V8bccXUMmmAcrJLIh-VAuKcXnVP9LGfK1mH1iqg6ijXH7kVQgdFzMWX9GZVFtLQchv6s2v8GleUygniIuc5VMBBeWMdNNSu2DisnJnPvIEcVcv0uPO8umwGWD4QiOXOjeN2TTsAQT6it7FuCkLfJr5rFxBnz7pIAdOEbDjcVTA5_-yzmoirnNFO1KXQYhnklKcANe9fVIquiupKLuAi_2WiB-0mjKZnB0y_FbihOChH1sbN">
+
+                        <!-- Price Range Filter -->
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center text-xs">
+                                <label class="text-on-surface font-bold uppercase tracking-wider">Price Range</label>
+                                <span id="price-range-label" class="text-primary font-bold font-mono">$200,000</span>
+                            </div>
+                            <input id="price-range-slider" type="range" min="0" max="200000" step="5000" value="200000" class="w-full accent-primary cursor-pointer">
+                            <div class="flex justify-between text-[10px] text-on-surface-variant font-mono">
+                                <span>$0</span>
+                                <span>Max</span>
+                            </div>
                         </div>
-                        <p class="text-primary text-xs font-label-caps uppercase mb-2">Heritage Line</p>
-                        <h3 class="font-headline-md text-white mb-2">Classic Chrono</h3>
-                        <p class="text-on-surface-variant text-sm font-body-md mb-4">Chronograph • 40mm • 24k Gold Bracelet</p>
-                        <p class="text-white font-bold text-lg">$15,800</p>
-                    </div>
-                    <!-- Watch 3 -->
-                    <div class="reveal group" style="transition-delay: 400ms;">
-                        <div class="relative aspect-[3/4] bg-surface-container-high rounded-xl overflow-hidden mb-6 flex items-center justify-center p-12 transition-all duration-500 group-hover:shadow-[0_0_50px_-12px_rgba(233,193,118,0.3)]">
-                            <img class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700" alt="Midnight Masterpiece watch" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwE9xOPMZC9vRUneIX68p0UpSciLB3Ug2YBrnaxWna1XUTOif1c3tEynItWtnzi_hfDyt5hxo0gJmPRKHcV3HPZ3CPbxNkCfj6f9IX2n8Mu0sH8Q7LOA21MSzMREIZtjtLkB8A62r6t9oRCUQ0xk6bMZBLpbDCdMiPm36P6mV6Ha_oQhpVG9Sj6BOuc8uWusukPiG_pWqYWqIidFfoiQVe-P8IzZD9UOy0bVA9m-D7a5DHxm3YbEgLxdddy5qzlaBrJEa5AIqCBqQ5">
+
+                        <!-- Brand Filter -->
+                        <div class="space-y-3 pt-4 border-t border-outline-variant/40">
+                            <label class="block text-xs text-on-surface font-bold uppercase tracking-wider mb-1">Brand</label>
+                            <select id="brand-filter-select" class="w-full bg-surface-container-high border border-outline-variant/60 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-primary cursor-pointer font-medium">
+                                <option value="all">All Brands</option>
+                            </select>
                         </div>
-                        <p class="text-primary text-xs font-label-caps uppercase mb-2">Limited Edition</p>
-                        <h3 class="font-headline-md text-white mb-2">Midnight Masterpiece</h3>
-                        <p class="text-on-surface-variant text-sm font-body-md mb-4">Manual Wind • 44mm • Titanium Case</p>
-                        <p class="text-white font-bold text-lg">$24,000</p>
+
+                        <!-- Counter Badge -->
+                        <div class="pt-4 border-t border-outline-variant/40 text-center">
+                            <span id="matching-products-count" class="inline-block bg-primary/10 border border-primary/30 text-primary font-bold px-3 py-1.5 rounded-full text-[11px] uppercase tracking-wider">
+                                Showing 0 Products
+                            </span>
+                        </div>
+                    </aside>
+
+                    <!-- Right Products Area -->
+                    <div class="md:col-span-3 space-y-6">
+                        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Loaded dynamically via Supabase -->
+                        </div>
+
+                        <!-- No Products Found Empty State -->
+                        <div id="no-products-found" class="hidden text-center py-16 space-y-4 bg-surface-container/50 border border-outline-variant/40 rounded-2xl p-8">
+                            <div class="size-16 rounded-full border border-primary/40 bg-primary/10 text-primary flex items-center justify-center mx-auto mb-2 shadow-xl">
+                                <span class="material-symbols-outlined text-3xl">search_off</span>
+                            </div>
+                            <h4 class="font-headline-lg text-white text-xl uppercase tracking-wider">No Products Found</h4>
+                            <p class="text-on-surface-variant text-xs max-w-sm mx-auto leading-relaxed">
+                                No products match your current search terms, price limit, or brand filter.
+                            </p>
+                            <button id="btn-reset-empty-state" type="button" class="bg-primary text-on-primary px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest hover:brightness-110 shadow-lg transition-all cursor-pointer inline-flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">refresh</span>
+                                <span>Reset Filters</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -294,13 +350,13 @@
                             The pinnacle of Swiss horology. Precision movements wrapped in obsidian and gold.
                         </p>
                         <div class="flex gap-4">
-                            <a class="size-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" href="#">
+                            <a class="size-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" href="contact.html" title="CALCI Concierge">
                                 <span class="material-symbols-outlined text-sm">public</span>
                             </a>
-                            <a class="size-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" href="#">
+                            <a class="size-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" href="about.html" title="About CALCI">
                                 <span class="material-symbols-outlined text-sm">share</span>
                             </a>
-                            <a class="size-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" href="#">
+                            <a class="size-10 rounded-full border border-outline-variant flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" href="contact.html" title="Inquire via Email">
                                 <span class="material-symbols-outlined text-sm">mail</span>
                             </a>
                         </div>
@@ -308,39 +364,42 @@
                     <div>
                         <h5 class="text-white font-bold uppercase tracking-widest text-xs mb-8">Collections</h5>
                         <ul class="space-y-4">
-                            <li class=""><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">Obsidian Series</a></li>
-                            <li class=""><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">Gold Legacy</a></li>
-                            <li class=""><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">Skeleton Masterpieces</a></li>
-                            <li class=""><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">Limited Editions</a></li>
+                            <li><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#collection">Signature Series</a></li>
+                            <li><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#collection">Heritage Line</a></li>
+                            <li><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#collection">Skeleton Masterpieces</a></li>
+                            <li><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#collection">Limited Editions</a></li>
                         </ul>
                     </div>
                     <div>
                         <h5 class="text-white font-bold uppercase tracking-widest text-xs mb-8">The Brand</h5>
                         <ul class="space-y-4">
-                            <li class=""><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">Our History</a></li>
-                            <li class=""><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">Craftsmanship</a></li>
-                            <li class=""><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">Boutiques</a></li>
-                            <li class=""><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#">Press</a></li>
+                            <li><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="about.html">About Us</a></li>
+                            <li><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#heritage">Our History</a></li>
+                            <li><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="#craftsmanship">Craftsmanship</a></li>
+                            <li><a class="text-on-surface-variant text-sm hover:text-primary transition-colors" href="contact.html">Boutique Concierge</a></li>
                         </ul>
                     </div>
                     <div>
                         <h5 class="text-white font-bold uppercase tracking-widest text-xs mb-8">Newsletter</h5>
                         <p class="text-on-surface-variant text-sm mb-6">Join our private circle for early access to new releases.</p>
-                        <div class="relative">
-                            <input class="w-full bg-surface-container border-outline-variant border rounded-full px-6 py-3 text-sm focus:outline-none focus:border-primary transition-colors" placeholder="Email Address" type="email">
-                            <button class="absolute right-2 top-1/2 -translate-y-1/2 text-primary">
-                                <span class="material-symbols-outlined">arrow_forward</span>
+                        <form id="newsletter-form" class="relative">
+                            <input id="newsletter-email" required class="w-full bg-surface-container border-outline-variant border rounded-full px-6 py-3 text-sm focus:outline-none focus:border-primary transition-colors pr-12" placeholder="Email Address" type="email">
+                            <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 text-primary p-2 hover:brightness-125 cursor-pointer">
+                                <span class="material-symbols-outlined text-xl">arrow_forward</span>
                             </button>
-                        </div>
+                        </form>
                     </div>
                 </div>
                 <div class="border-t border-outline-variant pt-10 flex flex-col md:flex-row justify-between items-center gap-6">
-                    <p class="text-on-surface-variant text-xs">© 2024 Calci Horology. All rights reserved.</p>
-                    <div class="flex gap-8">
-                        <a class="text-on-surface-variant text-xs hover:text-white transition-colors" href="#">Privacy Policy</a>
-                        <a class="text-on-surface-variant text-xs hover:text-white transition-colors" href="#">Terms of Service</a>
-                        <a class="text-on-surface-variant text-xs hover:text-white transition-colors" href="#">Cookie Settings</a>
-                        <a class="text-on-surface-variant text-xs hover:text-white transition-colors" href="/admin">Admin Portal</a>
+                    <p class="text-on-surface-variant text-xs">© 2026 CALCI Horology. All rights reserved.</p>
+                    <div class="flex flex-wrap gap-6 text-xs">
+                        <a class="text-on-surface-variant hover:text-white transition-colors" href="about.html">About Us</a>
+                        <a class="text-on-surface-variant hover:text-white transition-colors" href="contact.html">Contact</a>
+                        <a class="text-on-surface-variant hover:text-white transition-colors" href="privacy.html">Privacy Policy</a>
+                        <a class="text-on-surface-variant hover:text-white transition-colors" href="terms.html">Terms & Conditions</a>
+                        <a class="text-on-surface-variant hover:text-white transition-colors" href="shipping.html">Shipping Policy</a>
+                        <a class="text-on-surface-variant hover:text-white transition-colors" href="refund.html">Returns & Refund Policy</a>
+                        <a class="text-on-surface-variant hover:text-white transition-colors" href="admin.html">Admin Portal</a>
                     </div>
                 </div>
             </div>

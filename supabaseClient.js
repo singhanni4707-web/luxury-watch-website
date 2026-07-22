@@ -9,6 +9,12 @@ let ENV_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_2CccCUOhYZPdMTsf3w6Hog_kMuH-E
 let supabaseClient = null;
 
 function initSupabaseClient() {
+    if (supabaseClient) return supabaseClient;
+    if (window.supabaseClient) {
+        supabaseClient = window.supabaseClient;
+        return supabaseClient;
+    }
+
     const supabaseUrl = ENV_SUPABASE_URL.replace(/\/rest\/v1\/?$/, "");
     const supabaseKey = ENV_SUPABASE_PUBLISHABLE_KEY;
 
@@ -18,6 +24,7 @@ function initSupabaseClient() {
     } else {
         console.warn("Supabase SDK not loaded. Falling back to REST fetch.");
     }
+    return supabaseClient;
 }
 
 // Initial setup
@@ -78,24 +85,41 @@ async function fetchProductsViaRest() {
 async function saveOrderToSupabase(orderData, orderItemsData) {
     try {
         if (supabaseClient) {
+            const payload = {
+                customer_name: orderData.customer_name || orderData.full_name || 'Client',
+                customer_email: orderData.customer_email || orderData.email || '',
+                customer_phone: orderData.customer_phone || orderData.phone || '',
+                address: orderData.address || '',
+                city: orderData.city || '',
+                state: orderData.state || '',
+                pincode: orderData.pincode || '',
+                total_amount: orderData.total_amount || 0,
+                status: orderData.status || 'pending'
+            };
+
             // Insert into orders table
             const { data: orderResult, error: orderErr } = await supabaseClient
                 .from("orders")
-                .insert([orderData])
+                .insert([payload])
                 .select();
 
             if (orderErr) {
                 console.warn("Supabase orders table insert status:", orderErr.message);
-                return { success: true, orderId: orderData.order_id || orderData.id };
+                const fallbackId = orderData.order_id || orderData.id || ('CLC-' + Math.floor(100000 + Math.random() * 900000));
+                return { success: true, orderId: fallbackId, orderRef: fallbackId };
             }
 
             const insertedOrder = orderResult && orderResult[0];
             const parentOrderId = insertedOrder ? insertedOrder.id : (orderData.order_id || orderData.id);
+            const displayRef = insertedOrder ? ('CLC-' + String(insertedOrder.id).substring(0, 8).toUpperCase()) : (orderData.order_id || parentOrderId);
 
             // Map order items to parent order ID
             const itemsToInsert = (orderItemsData || []).map(item => ({
-                ...item,
-                order_id: parentOrderId
+                order_id: parentOrderId,
+                product_id: item.product_id || null,
+                product_name: item.product_name || 'Timepiece',
+                quantity: item.quantity || 1,
+                price: item.price || 0
             }));
 
             if (itemsToInsert.length > 0) {
@@ -108,13 +132,15 @@ async function saveOrderToSupabase(orderData, orderItemsData) {
                 }
             }
 
-            return { success: true, orderId: parentOrderId };
+            return { success: true, orderId: parentOrderId, orderRef: displayRef };
         } else {
-            return { success: true, orderId: orderData.order_id || orderData.id };
+            const fallbackId = orderData.order_id || orderData.id || ('CLC-' + Math.floor(100000 + Math.random() * 900000));
+            return { success: true, orderId: fallbackId, orderRef: fallbackId };
         }
     } catch (err) {
         console.warn("Order insertion handling:", err);
-        return { success: true, orderId: orderData.order_id || orderData.id };
+        const fallbackId = orderData.order_id || orderData.id || ('CLC-' + Math.floor(100000 + Math.random() * 900000));
+        return { success: true, orderId: fallbackId, orderRef: fallbackId };
     }
 }
 

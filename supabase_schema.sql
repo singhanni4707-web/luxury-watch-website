@@ -49,6 +49,14 @@ FOR SELECT
 TO public, anon, authenticated 
 USING (true);
 
+DROP POLICY IF EXISTS "Allow update on orders" ON public.orders;
+CREATE POLICY "Allow update on orders" 
+ON public.orders 
+FOR UPDATE 
+TO public, anon, authenticated 
+USING (true)
+WITH CHECK (true);
+
 -- 5. RLS Policies for public.order_items
 DROP POLICY IF EXISTS "Allow anonymous insert into order_items" ON public.order_items;
 CREATE POLICY "Allow anonymous insert into order_items" 
