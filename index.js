@@ -1428,13 +1428,13 @@ async function handleOrderSubmission(e) {
     if (placeBtn) placeBtn.disabled = true;
     if (placeText) placeText.innerText = 'Processing Order...';
 
-    // Generate Order Reference ID
-    const randomDigits = Math.floor(100000 + Math.random() * 900000);
-    const orderId = `CLC-${randomDigits}`;
+    // Generate Unique Order Reference Code (e.g. CLC-AC6225E3)
+    const orderRef = (typeof generateOrderReference === 'function') ? generateOrderReference() : ('CLC-' + Math.floor(100000 + Math.random() * 900000));
     const totalAmount = getCartSubtotal();
 
     const orderData = {
-        order_id: orderId,
+        order_reference: orderRef,
+        order_id: orderRef,
         customer_name: name,
         customer_email: email,
         customer_phone: phone,
@@ -1468,7 +1468,7 @@ async function handleOrderSubmission(e) {
         return;
     }
 
-    const finalOrderRef = (saveRes && saveRes.orderRef) ? saveRes.orderRef : orderId;
+    const finalOrderRef = (saveRes && saveRes.orderRef) ? saveRes.orderRef : orderRef;
 
     // Reset button state
     if (placeBtn) placeBtn.disabled = false;
@@ -1557,17 +1557,28 @@ async function performOrderLookup(inputVal) {
 
     if (window.supabaseClient) {
         try {
-            const { data, error } = await window.supabaseClient
+            // 1. Search directly by order_reference column
+            const { data: refMatches } = await window.supabaseClient
                 .from('orders')
-                .select('*');
+                .select('*, order_items(*)')
+                .eq('order_reference', queryStr);
 
-            if (!error && data && data.length > 0) {
-                foundOrder = data.find(o => 
-                    String(o.order_id || '').trim().toLowerCase() === queryStr.toLowerCase() ||
-                    String(o.id || '').trim().toLowerCase() === queryStr.toLowerCase() ||
-                    String(o.id || '').trim().toLowerCase().startsWith(queryStr.toLowerCase()) ||
-                    queryStr.toLowerCase().replace(/[^a-z0-9]/g, '') === String(o.order_id || '').toLowerCase().replace(/[^a-z0-9]/g, '')
-                );
+            if (refMatches && refMatches.length > 0) {
+                foundOrder = refMatches[0];
+            } else {
+                // 2. Fallback: Search all orders with joined order_items and match order_reference, order_id, or UUID id
+                const { data: allOrders } = await window.supabaseClient
+                    .from('orders')
+                    .select('*, order_items(*)');
+
+                if (allOrders && allOrders.length > 0) {
+                    foundOrder = allOrders.find(o => 
+                        String(o.order_reference || '').trim().toLowerCase() === queryStr.toLowerCase() ||
+                        String(o.order_id || '').trim().toLowerCase() === queryStr.toLowerCase() ||
+                        String(o.id || '').trim().toLowerCase() === queryStr.toLowerCase() ||
+                        String(o.id || '').trim().toLowerCase().startsWith(queryStr.toLowerCase())
+                    );
+                }
             }
         } catch (err) {
             console.warn("Order lookup error:", err);
@@ -1594,12 +1605,40 @@ function renderOrderTrackingDetails(order) {
     const cancelledBanner = document.getElementById('track-cancelled-banner');
     const progressWrapper = document.getElementById('track-progress-wrapper');
     const progressBar = document.getElementById('track-progress-bar');
+    const productsContainer = document.getElementById('track-products-container');
 
-    const orderRef = order.order_id || (order.id ? String(order.id).substring(0, 8) : 'CLC-000');
+    const orderRef = order.order_reference || order.order_id || (order.id ? 'CLC-' + String(order.id).substring(0, 8).toUpperCase() : 'CLC-000');
     if (resId) resId.innerText = orderRef;
     if (resName) resName.innerText = order.customer_name || order.full_name || 'Client';
-    if (resDate) resDate.innerText = order.created_at ? new Date(order.created_at).toLocaleDateString() : '-';
+    if (resDate) resDate.innerText = order.created_at ? new Date(order.created_at).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-';
     if (resTotal) resTotal.innerText = formatPrice(order.total_amount);
+
+    // Render Products Breakdown List
+    if (productsContainer) {
+        productsContainer.innerHTML = '';
+        const items = order.order_items || order.items || [];
+        if (items.length === 0) {
+            productsContainer.innerHTML = '<div class="text-on-surface-variant italic p-2 bg-surface-container-high/40 rounded">Standard Luxury Horology Order</div>';
+        } else {
+            items.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between bg-surface-container-high/60 p-2.5 rounded-lg border border-outline-variant/40';
+                const pName = item.product_name || item.name || 'CALCI Timepiece';
+                const qty = item.quantity || 1;
+                const priceVal = formatPrice(item.price);
+                const subtotalVal = formatPrice((parsePriceToNumber(item.price)) * qty);
+
+                row.innerHTML = `
+                    <div class="truncate">
+                        <p class="text-white font-bold truncate">${pName}</p>
+                        <p class="text-on-surface-variant text-[11px]">Qty: ${qty} × ${priceVal}</p>
+                    </div>
+                    <span class="text-primary font-mono font-bold ml-2 flex-shrink-0">${subtotalVal}</span>
+                `;
+                productsContainer.appendChild(row);
+            });
+        }
+    }
 
     const status = (order.status || 'pending').toLowerCase();
 

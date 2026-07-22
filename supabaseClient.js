@@ -80,12 +80,26 @@ async function fetchProductsViaRest() {
 }
 
 /**
+ * Helper to generate a unique order_reference code (e.g. CLC-AC6225E3)
+ */
+function generateOrderReference() {
+    const chars = '0123456789ABCDEF';
+    let code = '';
+    for (let i = 0; i < 8; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `CLC-${code}`;
+}
+
+/**
  * Save Order and Order Items to Supabase database tables: orders & order_items
  */
 async function saveOrderToSupabase(orderData, orderItemsData) {
     try {
         if (supabaseClient) {
+            const refCode = orderData.order_reference || orderData.order_ref || generateOrderReference();
             const payload = {
+                order_reference: refCode,
                 customer_name: orderData.customer_name || orderData.full_name || 'Client',
                 customer_email: orderData.customer_email || orderData.email || '',
                 customer_phone: orderData.customer_phone || orderData.phone || '',
@@ -98,20 +112,28 @@ async function saveOrderToSupabase(orderData, orderItemsData) {
             };
 
             // Insert into orders table
-            const { data: orderResult, error: orderErr } = await supabaseClient
+            let { data: orderResult, error: orderErr } = await supabaseClient
                 .from("orders")
                 .insert([payload])
                 .select();
 
+            // If order_reference column doesn't exist yet on backend, retry without order_reference column in payload
+            if (orderErr && orderErr.message && orderErr.message.includes("order_reference")) {
+                const fallbackPayload = { ...payload };
+                delete fallbackPayload.order_reference;
+                const retryRes = await supabaseClient.from("orders").insert([fallbackPayload]).select();
+                orderResult = retryRes.data;
+                orderErr = retryRes.error;
+            }
+
             if (orderErr) {
                 console.warn("Supabase orders table insert status:", orderErr.message);
-                const fallbackId = orderData.order_id || orderData.id || ('CLC-' + Math.floor(100000 + Math.random() * 900000));
-                return { success: true, orderId: fallbackId, orderRef: fallbackId };
+                return { success: true, orderId: refCode, orderRef: refCode };
             }
 
             const insertedOrder = orderResult && orderResult[0];
             const parentOrderId = insertedOrder ? insertedOrder.id : (orderData.order_id || orderData.id);
-            const displayRef = insertedOrder ? ('CLC-' + String(insertedOrder.id).substring(0, 8).toUpperCase()) : (orderData.order_id || parentOrderId);
+            const displayRef = (insertedOrder && insertedOrder.order_reference) ? insertedOrder.order_reference : refCode;
 
             // Map order items to parent order ID
             const itemsToInsert = (orderItemsData || []).map(item => ({

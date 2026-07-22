@@ -7,6 +7,7 @@
 -- 1. Create public.orders table
 CREATE TABLE IF NOT EXISTS public.orders (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_reference TEXT UNIQUE,
     customer_name TEXT NOT NULL,
     customer_email TEXT NOT NULL,
     customer_phone TEXT NOT NULL,
@@ -18,6 +19,9 @@ CREATE TABLE IF NOT EXISTS public.orders (
     status TEXT DEFAULT 'pending',
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Ensure order_reference column exists on existing orders table
+ALTER TABLE public.orders ADD COLUMN IF NOT EXISTS order_reference TEXT;
 
 -- 2. Create public.order_items table
 CREATE TABLE IF NOT EXISTS public.order_items (
