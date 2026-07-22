@@ -25,6 +25,9 @@ while ($listener.IsListening) {
         if ($urlPath -eq "/") {
             $urlPath = "/index.html"
         }
+        if ($urlPath -eq "/admin") {
+            $urlPath = "/admin.html"
+        }
         
         $filePath = ""
         $contentType = "text/plain"
