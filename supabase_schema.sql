@@ -63,3 +63,36 @@ ON public.order_items
 FOR SELECT 
 TO public, anon, authenticated 
 USING (true);
+
+-- 6. RLS Policies for public.products (Required for Admin Add / Edit / Delete)
+ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public select from products" ON public.products;
+CREATE POLICY "Allow public select from products" 
+ON public.products 
+FOR SELECT 
+TO public, anon, authenticated 
+USING (true);
+
+DROP POLICY IF EXISTS "Allow public insert into products" ON public.products;
+CREATE POLICY "Allow public insert into products" 
+ON public.products 
+FOR INSERT 
+TO public, anon, authenticated 
+WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public update on products" ON public.products;
+CREATE POLICY "Allow public update on products" 
+ON public.products 
+FOR UPDATE 
+TO public, anon, authenticated 
+USING (true)
+WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public delete from products" ON public.products;
+CREATE POLICY "Allow public delete from products" 
+ON public.products 
+FOR DELETE 
+TO public, anon, authenticated 
+USING (true);
+

@@ -436,9 +436,13 @@ function openAddProductModal() {
     const modal = document.getElementById("admin-product-modal");
     const titleEl = document.getElementById("product-modal-title");
     const form = document.getElementById("admin-product-form");
+    const errAlert = document.getElementById("prod-error-alert");
+    const uploadStatus = document.getElementById("upload-status-text");
 
     if (form) form.reset();
     document.getElementById("prod-form-id").value = "";
+    if (errAlert) errAlert.classList.add("hidden");
+    if (uploadStatus) uploadStatus.innerText = "";
     if (titleEl) titleEl.innerText = "Add New Product";
 
     if (modal) {
@@ -453,6 +457,11 @@ function openEditProductModal(productId) {
 
     const modal = document.getElementById("admin-product-modal");
     const titleEl = document.getElementById("product-modal-title");
+    const errAlert = document.getElementById("prod-error-alert");
+    const uploadStatus = document.getElementById("upload-status-text");
+
+    if (errAlert) errAlert.classList.add("hidden");
+    if (uploadStatus) uploadStatus.innerText = "";
 
     document.getElementById("prod-form-id").value = prod.id;
     document.getElementById("prod-form-name").value = prod.name || "";
@@ -478,52 +487,141 @@ function closeProductModal() {
     setTimeout(() => modal.classList.add("hidden", "pointer-events-none"), 300);
 }
 
+// Handle Image File Upload
+async function handleImageUpload(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    const imgInput = document.getElementById("prod-form-image");
+    const uploadStatus = document.getElementById("upload-status-text");
+
+    if (uploadStatus) uploadStatus.innerText = "Uploading image to Supabase Storage...";
+
+    try {
+        if (window.supabaseClient && window.supabaseClient.storage) {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `product_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+            const filePath = `${fileName}`;
+
+            // Try product-images bucket or products bucket
+            let bucketName = "product-images";
+            let { data, error } = await window.supabaseClient.storage
+                .from(bucketName)
+                .upload(filePath, file);
+
+            if (error) {
+                bucketName = "products";
+                const res2 = await window.supabaseClient.storage
+                    .from(bucketName)
+                    .upload(filePath, file);
+                error = res2.error;
+            }
+
+            if (!error) {
+                const { data: publicUrlData } = window.supabaseClient.storage
+                    .from(bucketName)
+                    .getPublicUrl(filePath);
+
+                if (publicUrlData && publicUrlData.publicUrl) {
+                    if (imgInput) imgInput.value = publicUrlData.publicUrl;
+                    if (uploadStatus) uploadStatus.innerText = "✓ Uploaded to Supabase Storage!";
+                    return;
+                }
+            }
+        }
+    } catch (err) {
+        console.warn("Storage upload notice:", err);
+    }
+
+    // Fallback preview as Data URL
+    const reader = new FileReader();
+    reader.onload = function (evt) {
+        if (imgInput) imgInput.value = evt.target.result;
+        if (uploadStatus) uploadStatus.innerText = "✓ Image loaded into URL field!";
+    };
+    reader.readAsDataURL(file);
+}
+
 async function handleSaveProduct(e) {
     e.preventDefault();
+
+    const errAlert = document.getElementById("prod-error-alert");
+    const errMsg = document.getElementById("prod-error-msg");
+    const btnSave = document.getElementById("btn-save-product");
+
+    if (errAlert) errAlert.classList.add("hidden");
 
     const id = document.getElementById("prod-form-id").value.trim();
     const name = document.getElementById("prod-form-name").value.trim();
     const brand = document.getElementById("prod-form-brand").value.trim();
-    const price = parseFloat(document.getElementById("prod-form-price").value.trim());
-    const stock = parseInt(document.getElementById("prod-form-stock").value.trim(), 10);
+    const priceStr = document.getElementById("prod-form-price").value.trim();
+    const price = parseFloat(priceStr);
+    const stockStr = document.getElementById("prod-form-stock").value.trim();
+    const stock = parseInt(stockStr, 10);
     const imageUrl = document.getElementById("prod-form-image").value.trim();
     const description = document.getElementById("prod-form-desc").value.trim();
 
-    if (!name || !brand || isNaN(price) || !imageUrl) {
-        alert("Please complete all required product fields.");
+    if (!name || !brand || isNaN(price) || !imageUrl || !description) {
+        if (errMsg) errMsg.innerText = "Please complete all required product fields.";
+        if (errAlert) errAlert.classList.remove("hidden");
         return;
     }
 
+    // Construct exact payload matching Supabase products schema
     const payload = {
-        name,
-        brand,
-        price,
+        name: name,
+        brand: brand,
+        price: price,
+        description: description,
         stock: isNaN(stock) ? 10 : stock,
-        "image-url": imageUrl,
-        description
+        "image-url": imageUrl
     };
 
-    if (window.supabaseClient) {
-        try {
+    if (btnSave) btnSave.disabled = true;
+
+    try {
+        let supabaseErr = null;
+
+        if (window.supabaseClient) {
             if (id) {
-                // Update
-                await window.supabaseClient
+                // Update product in Supabase products table
+                const { error } = await window.supabaseClient
                     .from("products")
                     .update(payload)
                     .eq("id", id);
+                supabaseErr = error;
             } else {
-                // Insert
-                await window.supabaseClient
+                // Insert product into Supabase products table
+                const { error } = await window.supabaseClient
                     .from("products")
                     .insert([payload]);
+                supabaseErr = error;
             }
-        } catch (err) {
-            console.error("Product save note:", err);
         }
-    }
 
-    closeProductModal();
-    fetchAdminProducts();
+        if (supabaseErr) {
+            console.error("Supabase Product Insertion Error:", supabaseErr);
+            let displayMsg = `Supabase Error (${supabaseErr.code || 'FAIL'}): ${supabaseErr.message || 'Failed to insert product.'}`;
+
+            if (supabaseErr.code === "42501" || (supabaseErr.message && supabaseErr.message.includes("row-level security"))) {
+                displayMsg = `Supabase RLS Error: ${supabaseErr.message}. Please run the RLS SQL script in your Supabase SQL Editor.`;
+            }
+
+            if (errMsg) errMsg.innerText = displayMsg;
+            if (errAlert) errAlert.classList.remove("hidden");
+            if (btnSave) btnSave.disabled = false;
+            return;
+        }
+
+        closeProductModal();
+        await fetchAdminProducts();
+    } catch (err) {
+        console.error("Unexpected error saving product:", err);
+        if (errMsg) errMsg.innerText = `Error: ${err.message || 'Unexpected error occurred.'}`;
+        if (errAlert) errAlert.classList.remove("hidden");
+    } finally {
+        if (btnSave) btnSave.disabled = false;
+    }
 }
 
 async function deleteProduct(productId) {
@@ -736,6 +834,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btn-open-add-product")?.addEventListener("click", openAddProductModal);
     document.getElementById("close-admin-product-modal")?.addEventListener("click", closeProductModal);
     document.getElementById("btn-cancel-product")?.addEventListener("click", closeProductModal);
+    document.getElementById("prod-file-upload")?.addEventListener("change", handleImageUpload);
     document.getElementById("admin-product-form")?.addEventListener("click", (e) => e.stopPropagation());
     document.getElementById("admin-product-form")?.addEventListener("submit", handleSaveProduct);
 
