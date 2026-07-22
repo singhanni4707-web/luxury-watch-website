@@ -281,6 +281,24 @@ function renderOrdersTables() {
     }
 }
 
+function showAdminToast(msg) {
+    let toast = document.getElementById("admin-toast");
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "admin-toast";
+        toast.className = "fixed bottom-6 right-6 z-[200] bg-surface-container border border-primary/40 text-white px-5 py-3.5 rounded-xl shadow-2xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all duration-300 transform translate-y-10 opacity-0 pointer-events-none";
+        toast.innerHTML = `<span class="material-symbols-outlined text-primary text-base">check_circle</span><span id="admin-toast-text"></span>`;
+        document.body.appendChild(toast);
+    }
+    const textEl = document.getElementById("admin-toast-text");
+    if (textEl) textEl.innerText = msg;
+
+    toast.classList.remove("translate-y-10", "opacity-0", "pointer-events-none");
+    setTimeout(() => {
+        toast.classList.add("translate-y-10", "opacity-0", "pointer-events-none");
+    }, 3000);
+}
+
 // Update Order Status in Supabase
 async function updateOrderStatus(orderId, newStatus) {
     try {
@@ -292,17 +310,22 @@ async function updateOrderStatus(orderId, newStatus) {
 
             if (error) {
                 console.warn("Order status update notice:", error.message);
+                await window.supabaseClient
+                    .from("orders")
+                    .update({ status: newStatus })
+                    .eq("order_id", orderId);
             }
         }
 
         // Update local object
-        const order = adminOrders.find(o => String(o.id) === String(orderId));
+        const order = adminOrders.find(o => String(o.id) === String(orderId) || String(o.order_id) === String(orderId));
         if (order) {
             order.status = newStatus;
         }
 
         updateOverviewStats();
         renderOrdersTables();
+        showAdminToast(`Order status updated to "${newStatus.toUpperCase()}"`);
     } catch (e) {
         console.error("Failed to update status:", e);
     }

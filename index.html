@@ -108,6 +108,10 @@
                 <a class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors" href="#gallery">Gallery</a>
             </div>
             <div class="flex items-center gap-4">
+                <button id="open-track-btn" class="text-xs font-label-caps uppercase tracking-widest text-on-surface hover:text-primary transition-colors flex items-center gap-1 cursor-pointer mr-2">
+                    <span class="material-symbols-outlined text-base">local_shipping</span>
+                    <span class="hidden sm:inline">Track Order</span>
+                </button>
                 <button id="open-cart-btn" aria-label="View Shopping Cart" class="relative p-2.5 rounded-full border border-white/10 bg-surface-container-high/60 text-white hover:text-primary hover:border-primary/50 transition-all flex items-center justify-center cursor-pointer">
                     <span class="material-symbols-outlined text-xl">shopping_bag</span>
                     <span id="cart-count-badge" class="absolute -top-1 -right-1 bg-primary text-on-primary font-bold text-[10px] size-5 rounded-full flex items-center justify-center shadow-lg transition-transform scale-0 opacity-0">0</span>
@@ -582,9 +586,124 @@
                 </div>
             </div>
 
-            <button id="close-confirmation-btn" class="bg-primary text-on-primary px-8 py-3.5 rounded-full text-xs font-bold uppercase tracking-widest hover:brightness-110 shadow-[0_0_20px_rgba(233,193,118,0.25)] transition-all cursor-pointer">
-                Continue Exploring
+            <div class="flex flex-col sm:flex-row justify-center gap-3">
+                <button id="track-this-order-btn" class="bg-surface-bright border border-primary/40 text-primary hover:bg-primary hover:text-on-primary px-6 py-3.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-sm">local_shipping</span>
+                    <span>Track Order Status</span>
+                </button>
+                <button id="close-confirmation-btn" class="bg-primary text-on-primary px-8 py-3.5 rounded-full text-xs font-bold uppercase tracking-widest hover:brightness-110 shadow-[0_0_20px_rgba(233,193,118,0.25)] transition-all cursor-pointer">
+                    Continue Exploring
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Order Progress Tracker Modal -->
+    <div id="track-modal-backdrop" class="fixed inset-0 z-[140] hidden items-center justify-center p-4 md:p-8 bg-black/90 backdrop-blur-md transition-all duration-300 opacity-0 pointer-events-none">
+        <div id="track-modal-card" class="relative w-full max-w-2xl bg-surface-container border border-outline-variant/60 rounded-2xl overflow-hidden shadow-2xl p-6 md:p-8 space-y-6 transform scale-95 transition-all duration-300 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <!-- Close Button -->
+            <button id="close-track-modal" class="absolute top-4 right-4 size-9 rounded-full bg-surface-bright/50 hover:bg-surface-bright text-white hover:text-primary transition-all flex items-center justify-center cursor-pointer">
+                <span class="material-symbols-outlined text-lg">close</span>
             </button>
+
+            <div class="text-center space-y-2">
+                <div class="size-12 rounded-full border border-primary/40 bg-primary/10 text-primary flex items-center justify-center mx-auto mb-2">
+                    <span class="material-symbols-outlined text-2xl">local_shipping</span>
+                </div>
+                <h3 class="font-headline-lg text-white text-2xl uppercase tracking-wider">Track Acquisition</h3>
+                <p class="text-xs text-on-surface-variant">Enter your Order Reference ID (e.g., CLC-849201) to view status</p>
+            </div>
+
+            <!-- Search Input Form -->
+            <form id="track-order-form" class="flex gap-2">
+                <input id="track-order-input" type="text" required placeholder="Enter Order ID (e.g. CLC-123456)" class="flex-1 bg-surface-container-high border border-outline-variant/60 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-primary font-mono uppercase tracking-wider">
+                <button type="submit" id="btn-search-order" class="bg-primary text-on-primary px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:brightness-110 shadow-lg transition-all flex items-center gap-1 cursor-pointer flex-shrink-0">
+                    <span class="material-symbols-outlined text-base">search</span>
+                    <span>Track</span>
+                </button>
+            </form>
+
+            <!-- Error Alert -->
+            <div id="track-error-alert" class="hidden bg-error/10 border border-error/40 text-error px-4 py-3 rounded-xl text-xs flex items-center gap-2">
+                <span class="material-symbols-outlined text-base">error</span>
+                <span id="track-error-msg">Order reference not found. Please check your ID and try again.</span>
+            </div>
+
+            <!-- Track Results Box -->
+            <div id="track-results-container" class="hidden space-y-6 border-t border-outline-variant/40 pt-6">
+                <!-- Order Header Info -->
+                <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/40 flex flex-wrap items-center justify-between gap-4 text-xs">
+                    <div>
+                        <p class="text-on-surface-variant">Order Reference ID</p>
+                        <p id="track-res-id" class="text-primary font-mono font-bold text-base">-</p>
+                    </div>
+                    <div>
+                        <p class="text-on-surface-variant">Client Name</p>
+                        <p id="track-res-name" class="text-white font-bold">-</p>
+                    </div>
+                    <div>
+                        <p class="text-on-surface-variant">Acquisition Date</p>
+                        <p id="track-res-date" class="text-white">-</p>
+                    </div>
+                    <div>
+                        <p class="text-on-surface-variant">Total Amount</p>
+                        <p id="track-res-total" class="text-primary font-bold font-mono text-base">-</p>
+                    </div>
+                </div>
+
+                <!-- Cancelled Alert Banner -->
+                <div id="track-cancelled-banner" class="hidden bg-red-500/10 border border-red-500/40 text-red-400 p-4 rounded-xl text-xs flex items-center gap-3">
+                    <span class="material-symbols-outlined text-2xl">cancel</span>
+                    <div>
+                        <p class="font-bold text-sm">Order Status: Cancelled</p>
+                        <p class="text-[11px] text-red-300">This acquisition order has been cancelled. Please contact CALCI concierge if you have questions.</p>
+                    </div>
+                </div>
+
+                <!-- Visual Step Progress Tracker -->
+                <div id="track-progress-wrapper" class="space-y-4">
+                    <h4 class="text-xs uppercase tracking-wider font-bold text-on-surface text-center">Fulfillment Progress Tracker</h4>
+                    
+                    <div class="relative flex items-center justify-between px-4 sm:px-8 py-4">
+                        <!-- Progress Line -->
+                        <div class="absolute left-8 right-8 top-1/2 -translate-y-1/2 h-1 bg-surface-bright rounded-full -z-0">
+                            <div id="track-progress-bar" class="h-full bg-primary rounded-full transition-all duration-500 w-0"></div>
+                        </div>
+
+                        <!-- Step 1: Order Placed -->
+                        <div id="step-pending" class="relative z-10 flex flex-col items-center gap-1 group">
+                            <div class="step-icon size-10 rounded-full bg-surface-container-high border-2 border-outline-variant text-on-surface-variant flex items-center justify-center font-bold text-xs transition-all shadow-md">
+                                <span class="material-symbols-outlined text-base">task_alt</span>
+                            </div>
+                            <span class="step-label text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Placed</span>
+                        </div>
+
+                        <!-- Step 2: Confirmed -->
+                        <div id="step-confirmed" class="relative z-10 flex flex-col items-center gap-1 group">
+                            <div class="step-icon size-10 rounded-full bg-surface-container-high border-2 border-outline-variant text-on-surface-variant flex items-center justify-center font-bold text-xs transition-all shadow-md">
+                                <span class="material-symbols-outlined text-base">verified</span>
+                            </div>
+                            <span class="step-label text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Confirmed</span>
+                        </div>
+
+                        <!-- Step 3: Shipped -->
+                        <div id="step-shipped" class="relative z-10 flex flex-col items-center gap-1 group">
+                            <div class="step-icon size-10 rounded-full bg-surface-container-high border-2 border-outline-variant text-on-surface-variant flex items-center justify-center font-bold text-xs transition-all shadow-md">
+                                <span class="material-symbols-outlined text-base">local_shipping</span>
+                            </div>
+                            <span class="step-label text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Shipped</span>
+                        </div>
+
+                        <!-- Step 4: Delivered -->
+                        <div id="step-delivered" class="relative z-10 flex flex-col items-center gap-1 group">
+                            <div class="step-icon size-10 rounded-full bg-surface-container-high border-2 border-outline-variant text-on-surface-variant flex items-center justify-center font-bold text-xs transition-all shadow-md">
+                                <span class="material-symbols-outlined text-base">package_2</span>
+                            </div>
+                            <span class="step-label text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Delivered</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

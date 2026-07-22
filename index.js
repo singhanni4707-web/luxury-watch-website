@@ -872,6 +872,192 @@ async function handleOrderSubmission(e) {
 // Expose functions globally for inline onclick handlers
 window.changeCartQuantity = changeCartQuantity;
 window.removeFromCart = removeFromCart;
+window.openTrackModal = openTrackModal;
+
+// -------------------------------------------------------------
+// 9. Customer Order Status Tracking System
+// -------------------------------------------------------------
+
+function openTrackModal(orderIdToPrefill) {
+    const backdrop = document.getElementById('track-modal-backdrop');
+    const card = document.getElementById('track-modal-card');
+    const input = document.getElementById('track-order-input');
+    const errAlert = document.getElementById('track-error-alert');
+    const resBox = document.getElementById('track-results-container');
+
+    if (!backdrop || !card) return;
+
+    if (errAlert) errAlert.classList.add('hidden');
+    if (resBox && !orderIdToPrefill) resBox.classList.add('hidden');
+
+    if (orderIdToPrefill && input) {
+        input.value = orderIdToPrefill;
+        performOrderLookup(orderIdToPrefill);
+    }
+
+    backdrop.classList.remove('hidden', 'pointer-events-none');
+    setTimeout(() => {
+        backdrop.classList.remove('opacity-0');
+        card.classList.remove('scale-95');
+        card.classList.add('scale-100');
+    }, 10);
+}
+
+function closeTrackModal() {
+    const backdrop = document.getElementById('track-modal-backdrop');
+    const card = document.getElementById('track-modal-card');
+    if (!backdrop || !card) return;
+
+    card.classList.remove('scale-100');
+    card.classList.add('scale-95');
+    backdrop.classList.add('opacity-0');
+    setTimeout(() => {
+        backdrop.classList.add('hidden', 'pointer-events-none');
+    }, 300);
+}
+
+async function performOrderLookup(inputVal) {
+    const errAlert = document.getElementById('track-error-alert');
+    const errMsg = document.getElementById('track-error-msg');
+    const resBox = document.getElementById('track-results-container');
+    const btnSearch = document.getElementById('btn-search-order');
+
+    if (errAlert) errAlert.classList.add('hidden');
+    if (btnSearch) btnSearch.disabled = true;
+
+    const queryStr = String(inputVal || '').trim();
+    if (!queryStr) {
+        if (errMsg) errMsg.innerText = "Please enter a valid Order Reference ID.";
+        if (errAlert) errAlert.classList.remove('hidden');
+        if (btnSearch) btnSearch.disabled = false;
+        return;
+    }
+
+    let foundOrder = null;
+
+    if (window.supabaseClient) {
+        try {
+            const { data, error } = await window.supabaseClient
+                .from('orders')
+                .select('*');
+
+            if (!error && data && data.length > 0) {
+                foundOrder = data.find(o => 
+                    String(o.order_id || '').toLowerCase() === queryStr.toLowerCase() ||
+                    String(o.id || '').toLowerCase() === queryStr.toLowerCase() ||
+                    String(o.id || '').toLowerCase().startsWith(queryStr.toLowerCase())
+                );
+            }
+        } catch (err) {
+            console.warn("Order lookup error:", err);
+        }
+    }
+
+    if (btnSearch) btnSearch.disabled = false;
+
+    if (foundOrder) {
+        renderOrderTrackingDetails(foundOrder);
+        if (resBox) resBox.classList.remove('hidden');
+    } else {
+        if (resBox) resBox.classList.add('hidden');
+        if (errMsg) errMsg.innerText = `Order Reference ID "${queryStr}" was not found. Please check your ID and try again.`;
+        if (errAlert) errAlert.classList.remove('hidden');
+    }
+}
+
+function renderOrderTrackingDetails(order) {
+    const resId = document.getElementById('track-res-id');
+    const resName = document.getElementById('track-res-name');
+    const resDate = document.getElementById('track-res-date');
+    const resTotal = document.getElementById('track-res-total');
+    const cancelledBanner = document.getElementById('track-cancelled-banner');
+    const progressWrapper = document.getElementById('track-progress-wrapper');
+    const progressBar = document.getElementById('track-progress-bar');
+
+    const orderRef = order.order_id || (order.id ? String(order.id).substring(0, 8) : 'CLC-000');
+    if (resId) resId.innerText = orderRef;
+    if (resName) resName.innerText = order.customer_name || order.full_name || 'Client';
+    if (resDate) resDate.innerText = order.created_at ? new Date(order.created_at).toLocaleDateString() : '-';
+    if (resTotal) resTotal.innerText = formatPrice(order.total_amount);
+
+    const status = (order.status || 'pending').toLowerCase();
+
+    if (status === 'cancelled') {
+        if (cancelledBanner) cancelledBanner.classList.remove('hidden');
+        if (progressWrapper) progressWrapper.classList.add('hidden');
+        return;
+    }
+
+    if (cancelledBanner) cancelledBanner.classList.add('hidden');
+    if (progressWrapper) progressWrapper.classList.remove('hidden');
+
+    const steps = [
+        { id: 'step-pending', name: 'pending', percent: 0 },
+        { id: 'step-confirmed', name: 'confirmed', percent: 33 },
+        { id: 'step-shipped', name: 'shipped', percent: 66 },
+        { id: 'step-delivered', name: 'delivered', percent: 100 }
+    ];
+
+    let currentStepIndex = 0;
+    if (status === 'confirmed') currentStepIndex = 1;
+    if (status === 'shipped') currentStepIndex = 2;
+    if (status === 'delivered') currentStepIndex = 3;
+
+    if (progressBar) {
+        progressBar.style.width = `${steps[currentStepIndex].percent}%`;
+    }
+
+    steps.forEach((step, idx) => {
+        const stepEl = document.getElementById(step.id);
+        if (stepEl) {
+            const iconBox = stepEl.querySelector('.step-icon');
+            const labelBox = stepEl.querySelector('.step-label');
+
+            if (idx <= currentStepIndex) {
+                if (iconBox) {
+                    iconBox.classList.remove('bg-surface-container-high', 'border-outline-variant', 'text-on-surface-variant');
+                    iconBox.classList.add('bg-primary', 'border-primary', 'text-on-primary', 'shadow-[0_0_15px_rgba(233,193,118,0.4)]');
+                }
+                if (labelBox) {
+                    labelBox.classList.remove('text-on-surface-variant');
+                    labelBox.classList.add('text-primary');
+                }
+            } else {
+                if (iconBox) {
+                    iconBox.classList.add('bg-surface-container-high', 'border-outline-variant', 'text-on-surface-variant');
+                    iconBox.classList.remove('bg-primary', 'border-primary', 'text-on-primary', 'shadow-[0_0_15px_rgba(233,193,118,0.4)]');
+                }
+                if (labelBox) {
+                    labelBox.classList.add('text-on-surface-variant');
+                    labelBox.classList.remove('text-primary');
+                }
+            }
+        }
+    });
+}
+
+function initTrackingListeners() {
+    document.getElementById('open-track-btn')?.addEventListener('click', () => openTrackModal());
+    document.getElementById('close-track-modal')?.addEventListener('click', closeTrackModal);
+    document.getElementById('track-modal-card')?.addEventListener('click', (e) => e.stopPropagation());
+
+    document.getElementById('track-order-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const val = document.getElementById('track-order-input')?.value;
+        performOrderLookup(val);
+    });
+
+    document.getElementById('track-this-order-btn')?.addEventListener('click', () => {
+        const idText = document.getElementById('confirm-order-id')?.innerText;
+        closeConfirmationModal();
+        openTrackModal(idText);
+    });
+
+    // Auto open if URL has /track or #track
+    if (window.location.pathname.includes('/track') || window.location.hash.includes('track')) {
+        openTrackModal();
+    }
+}
 
 // Run Setup
 preloadImages().then(() => {
@@ -882,6 +1068,7 @@ preloadImages().then(() => {
     initSmoothScroll();
     initCart();
     initEcommerceListeners();
+    initTrackingListeners();
     loadSupabaseProducts();
 });
 
