@@ -132,6 +132,45 @@ async function saveOrderToSupabase(orderData, orderItemsData) {
                 }
             }
 
+            // Automatic Inventory Stock Reduction
+            if (supabaseClient && orderItemsData && orderItemsData.length > 0) {
+                for (const item of orderItemsData) {
+                    const targetId = item.product_id || item.id;
+                    if (!targetId) continue;
+
+                    let { data: prodData, error: fetchErr } = await supabaseClient
+                        .from("products")
+                        .select("id, stock")
+                        .eq("id", targetId)
+                        .maybeSingle();
+
+                    if (!prodData && !isNaN(targetId)) {
+                        const { data: numProd } = await supabaseClient
+                            .from("products")
+                            .select("id, stock")
+                            .eq("id", Number(targetId))
+                            .maybeSingle();
+                        if (numProd) prodData = numProd;
+                    }
+
+                    if (prodData) {
+                        const currentStock = prodData.stock !== undefined && prodData.stock !== null ? parseInt(prodData.stock) : 0;
+                        const qty = parseInt(item.quantity || 1);
+                        const newStock = Math.max(0, currentStock - qty);
+
+                        const { error: updateErr } = await supabaseClient
+                            .from("products")
+                            .update({ stock: newStock })
+                            .eq("id", prodData.id);
+
+                        if (updateErr) {
+                            console.error(`Failed to update stock for product ${targetId}:`, updateErr.message);
+                            return { success: false, error: `Failed to update inventory stock for ${item.product_name || 'timepiece'}.` };
+                        }
+                    }
+                }
+            }
+
             return { success: true, orderId: parentOrderId, orderRef: displayRef };
         } else {
             const fallbackId = orderData.order_id || orderData.id || ('CLC-' + Math.floor(100000 + Math.random() * 900000));
@@ -139,8 +178,7 @@ async function saveOrderToSupabase(orderData, orderItemsData) {
         }
     } catch (err) {
         console.warn("Order insertion handling:", err);
-        const fallbackId = orderData.order_id || orderData.id || ('CLC-' + Math.floor(100000 + Math.random() * 900000));
-        return { success: true, orderId: fallbackId, orderRef: fallbackId };
+        return { success: false, error: "An unexpected error occurred while placing your order." };
     }
 }
 

@@ -557,15 +557,59 @@ function openProductModal(product) {
     if (mobilePriceEl) mobilePriceEl.innerText = formattedPrice;
     if (descEl) descEl.innerText = subtitleText;
 
-    // Stock availability
-    const inStock = product.stock === undefined || product.stock > 0;
+    // Stock availability calculation & button states
+    const rawStock = product.stock !== undefined && product.stock !== null ? parseInt(product.stock) : 15;
+    const stockVal = isNaN(rawStock) ? 15 : Math.max(0, rawStock);
+
+    const modalAddBtn = document.getElementById('modal-add-to-cart');
+    const modalBuyBtn = document.getElementById('modal-buy-now');
+    const modalMobileAddBtn = document.getElementById('modal-mobile-add-to-cart');
+
     if (availBadge) {
-        if (inStock) {
-            availBadge.className = 'bg-emerald-500/10 border border-emerald-500/40 text-emerald-400 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5';
-            availBadge.innerHTML = `<span class="size-2 rounded-full bg-emerald-400 animate-pulse"></span><span>In Stock (${product.stock !== undefined ? product.stock : 'Available'})</span>`;
-        } else {
+        if (stockVal === 0) {
             availBadge.className = 'bg-red-500/10 border border-red-500/40 text-red-400 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5';
             availBadge.innerHTML = `<span class="size-2 rounded-full bg-red-400"></span><span>Out of Stock</span>`;
+        } else if (stockVal >= 1 && stockVal <= 10) {
+            availBadge.className = 'bg-amber-500/10 border border-amber-500/40 text-amber-400 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5';
+            availBadge.innerHTML = `<span class="size-2 rounded-full bg-amber-400 animate-pulse"></span><span>Only ${stockVal} Left</span>`;
+        } else {
+            availBadge.className = 'bg-emerald-500/10 border border-emerald-500/40 text-emerald-400 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5';
+            availBadge.innerHTML = `<span class="size-2 rounded-full bg-emerald-400 animate-pulse"></span><span>In Stock</span>`;
+        }
+    }
+
+    // Disable Add to Cart and Buy Now if Out of Stock
+    if (stockVal === 0) {
+        if (modalAddBtn) {
+            modalAddBtn.disabled = true;
+            modalAddBtn.className = 'flex-1 bg-surface-bright/50 border border-outline-variant text-on-surface-variant/40 py-4 px-6 rounded-full text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 cursor-not-allowed opacity-50 pointer-events-none';
+            modalAddBtn.innerHTML = '<span class="material-symbols-outlined text-base">block</span> Out of Stock';
+        }
+        if (modalBuyBtn) {
+            modalBuyBtn.disabled = true;
+            modalBuyBtn.className = 'flex-1 bg-surface-bright/50 border border-outline-variant text-on-surface-variant/40 py-4 px-6 rounded-full text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 cursor-not-allowed opacity-50 pointer-events-none';
+            modalBuyBtn.innerHTML = '<span class="material-symbols-outlined text-base">block</span> Out of Stock';
+        }
+        if (modalMobileAddBtn) {
+            modalMobileAddBtn.disabled = true;
+            modalMobileAddBtn.className = 'bg-surface-bright/50 text-on-surface-variant/40 py-3 px-6 rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-2 cursor-not-allowed opacity-50 pointer-events-none';
+            modalMobileAddBtn.innerHTML = '<span class="material-symbols-outlined text-sm">block</span> Out of Stock';
+        }
+    } else {
+        if (modalAddBtn) {
+            modalAddBtn.disabled = false;
+            modalAddBtn.className = 'flex-1 bg-surface-bright border border-primary/40 text-primary hover:bg-primary hover:text-on-primary py-4 px-6 rounded-full text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md';
+            modalAddBtn.innerHTML = '<span class="material-symbols-outlined text-base">add_shopping_cart</span> Add to Cart';
+        }
+        if (modalBuyBtn) {
+            modalBuyBtn.disabled = false;
+            modalBuyBtn.className = 'flex-1 bg-primary text-on-primary py-4 px-6 rounded-full text-xs font-bold uppercase tracking-widest hover:brightness-110 shadow-[0_0_25px_rgba(233,193,118,0.3)] transition-all flex items-center justify-center gap-2 cursor-pointer';
+            modalBuyBtn.innerHTML = '<span class="material-symbols-outlined text-base">bolt</span> Express Buy Now';
+        }
+        if (modalMobileAddBtn) {
+            modalMobileAddBtn.disabled = false;
+            modalMobileAddBtn.className = 'bg-primary text-on-primary py-3 px-6 rounded-full text-xs font-bold uppercase tracking-widest hover:brightness-110 flex items-center gap-2 shadow-lg cursor-pointer';
+            modalMobileAddBtn.innerHTML = '<span class="material-symbols-outlined text-sm">shopping_bag</span> Add to Bag';
         }
     }
 
@@ -1094,9 +1138,21 @@ function renderProducts(items, container) {
     items.forEach((item, index) => {
         const delay = index * 150;
         const seriesName = item.series || item.brand || item.category || 'Signature Series';
-        const subtitleText = item.subtitle || item.description || (item.stock !== undefined ? `Stock: ${item.stock} available` : 'Swiss Precision Movement');
+        const subtitleText = item.subtitle || item.description || 'Swiss Precision Movement';
         const priceText = formatPrice(item.price);
         const imgUrl = getProductImageUrl(item);
+
+        const rawStock = item.stock !== undefined && item.stock !== null ? parseInt(item.stock) : 15;
+        const stockVal = isNaN(rawStock) ? 15 : Math.max(0, rawStock);
+
+        let stockBadgeHtml = '';
+        if (stockVal === 0) {
+            stockBadgeHtml = `<span class="absolute top-3 left-3 bg-red-500/20 border border-red-500/50 text-red-400 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-md z-10">Out of Stock</span>`;
+        } else if (stockVal >= 1 && stockVal <= 10) {
+            stockBadgeHtml = `<span class="absolute top-3 left-3 bg-amber-500/20 border border-amber-500/50 text-amber-400 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-md animate-pulse z-10">Only ${stockVal} Left</span>`;
+        } else {
+            stockBadgeHtml = `<span class="absolute top-3 left-3 bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full backdrop-blur-md z-10">In Stock</span>`;
+        }
 
         const card = document.createElement('div');
         card.className = 'reveal group active cursor-pointer hover:-translate-y-1 transition-all duration-300';
@@ -1104,6 +1160,7 @@ function renderProducts(items, container) {
 
         card.innerHTML = `
             <div class="relative aspect-[3/4] bg-surface-container-high rounded-xl overflow-hidden mb-6 flex items-center justify-center p-12 transition-all duration-500 group-hover:shadow-[0_0_50px_-12px_rgba(233,193,118,0.35)] group-hover:border group-hover:border-primary/30">
+                ${stockBadgeHtml}
                 <img class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700" alt="${item.name || 'Calci Luxury Watch'}" src="${imgUrl}">
                 <div class="absolute bottom-4 right-4 bg-primary text-on-primary p-2.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 shadow-lg flex items-center justify-center">
                     <span class="material-symbols-outlined text-base">visibility</span>
@@ -1390,19 +1447,25 @@ async function handleOrderSubmission(e) {
     };
 
     const orderItemsData = cartState.map(item => {
-        const isValidUuid = typeof item.id === 'string' && item.id.length === 36 && item.id.includes('-');
         return {
-            product_id: isValidUuid ? item.id : null,
+            product_id: item.id || null,
             product_name: item.name || 'CALCI Timepiece',
             quantity: item.quantity || 1,
             price: parsePriceToNumber(item.price)
         };
     });
 
-    // Save to Supabase (orders & order_items)
+    // Save to Supabase (orders, order_items & inventory stock reduction)
     let saveRes = null;
     if (typeof window.saveOrderToSupabase === 'function') {
         saveRes = await window.saveOrderToSupabase(orderData, orderItemsData);
+    }
+
+    if (saveRes && saveRes.success === false) {
+        if (placeBtn) placeBtn.disabled = false;
+        if (placeText) placeText.innerText = 'Place Order';
+        showToast(saveRes.error || 'Failed to update product inventory. Please try again.');
+        return;
     }
 
     const finalOrderRef = (saveRes && saveRes.orderRef) ? saveRes.orderRef : orderId;
@@ -1418,6 +1481,9 @@ async function handleOrderSubmission(e) {
     // Clear cart & update UI
     cartState = [];
     saveCart();
+
+    // Refresh products to show updated stock levels across store
+    loadSupabaseProducts();
 
     // Reset form
     document.getElementById('checkout-form')?.reset();
