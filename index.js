@@ -766,9 +766,9 @@ function openConfirmationModal(orderId, orderData, totalAmount) {
     if (!backdrop || !card) return;
 
     if (idEl) idEl.innerText = orderId;
-    if (nameEl) nameEl.innerText = orderData.full_name || 'Client';
-    if (emailEl) emailEl.innerText = orderData.email || '';
-    if (phoneEl) phoneEl.innerText = orderData.phone || '';
+    if (nameEl) nameEl.innerText = orderData.customer_name || orderData.full_name || 'Client';
+    if (emailEl) emailEl.innerText = orderData.customer_email || orderData.email || '';
+    if (phoneEl) phoneEl.innerText = orderData.customer_phone || orderData.phone || '';
     if (addressEl) addressEl.innerText = `${orderData.address}, ${orderData.city}, ${orderData.state} - ${orderData.pincode}`;
     if (totalEl) totalEl.innerText = formatPrice(totalAmount);
 
@@ -827,26 +827,26 @@ async function handleOrderSubmission(e) {
     const totalAmount = getCartSubtotal();
 
     const orderData = {
-        order_id: orderId,
-        full_name: name,
-        email: email,
-        phone: phone,
+        customer_name: name,
+        customer_email: email,
+        customer_phone: phone,
         address: address,
         city: city,
         state: state,
         pincode: pincode,
         total_amount: totalAmount,
-        status: 'Processing',
-        created_at: new Date().toISOString()
+        status: 'pending'
     };
 
-    const orderItemsData = cartState.map(item => ({
-        product_id: String(item.id || item.name),
-        product_name: item.name,
-        quantity: item.quantity || 1,
-        price: parsePriceToNumber(item.price),
-        image_url: item.image_url || getProductImageUrl(item)
-    }));
+    const orderItemsData = cartState.map(item => {
+        const isValidUuid = typeof item.id === 'string' && item.id.length === 36 && item.id.includes('-');
+        return {
+            product_id: isValidUuid ? item.id : null,
+            product_name: item.name || 'CALCI Timepiece',
+            quantity: item.quantity || 1,
+            price: parsePriceToNumber(item.price)
+        };
+    });
 
     // Save to Supabase (orders & order_items)
     if (typeof window.saveOrderToSupabase === 'function') {
