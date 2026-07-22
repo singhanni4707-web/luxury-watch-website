@@ -589,6 +589,118 @@ function switchTab(targetTabName) {
     });
 }
 
+// Open/Close Admin Initialization Modal
+function openSignupModal() {
+    const modal = document.getElementById("admin-signup-modal-backdrop");
+    const errAlert = document.getElementById("signup-error-alert");
+    const succAlert = document.getElementById("signup-success-alert");
+    const form = document.getElementById("admin-signup-form");
+
+    if (form) form.reset();
+    if (errAlert) errAlert.classList.add("hidden");
+    if (succAlert) succAlert.classList.add("hidden");
+
+    if (modal) {
+        modal.classList.remove("hidden", "pointer-events-none");
+        setTimeout(() => modal.classList.remove("opacity-0"), 10);
+    }
+}
+
+function closeSignupModal() {
+    const modal = document.getElementById("admin-signup-modal-backdrop");
+    if (!modal) return;
+
+    modal.classList.add("opacity-0");
+    setTimeout(() => modal.classList.add("hidden", "pointer-events-none"), 300);
+}
+
+// Handle Admin Account Creation via Supabase Auth
+async function handleAdminSignup(e) {
+    e.preventDefault();
+
+    const emailEl = document.getElementById("signup-email");
+    const passEl = document.getElementById("signup-password");
+    const passConfEl = document.getElementById("signup-password-confirm");
+    const errAlert = document.getElementById("signup-error-alert");
+    const errMsg = document.getElementById("signup-error-msg");
+    const succAlert = document.getElementById("signup-success-alert");
+    const btn = document.getElementById("btn-create-admin");
+
+    if (!emailEl || !passEl || !passConfEl) return;
+
+    const email = emailEl.value.trim();
+    const password = passEl.value.trim();
+    const passwordConfirm = passConfEl.value.trim();
+
+    if (!email || !password || !passwordConfirm) {
+        if (errMsg) errMsg.innerText = "Please complete all required fields.";
+        if (errAlert) errAlert.classList.remove("hidden");
+        return;
+    }
+
+    if (password !== passwordConfirm) {
+        if (errMsg) errMsg.innerText = "Passwords do not match.";
+        if (errAlert) errAlert.classList.remove("hidden");
+        return;
+    }
+
+    if (password.length < 6) {
+        if (errMsg) errMsg.innerText = "Password must be at least 6 characters.";
+        if (errAlert) errAlert.classList.remove("hidden");
+        return;
+    }
+
+    if (errAlert) errAlert.classList.add("hidden");
+    if (btn) btn.disabled = true;
+
+    let authSuccess = false;
+    let authError = null;
+
+    if (window.supabaseClient && window.supabaseClient.auth) {
+        try {
+            const { data, error } = await window.supabaseClient.auth.signUp({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                // If user already exists in Auth, attempt login directly
+                const { data: signInData, error: signInErr } = await window.supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (signInErr) {
+                    authError = error.message;
+                } else {
+                    authSuccess = true;
+                }
+            } else {
+                authSuccess = true;
+            }
+        } catch (err) {
+            authError = err.message;
+        }
+    } else {
+        authSuccess = true;
+    }
+
+    if (btn) btn.disabled = false;
+
+    if (authSuccess) {
+        if (succAlert) succAlert.classList.remove("hidden");
+        localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({ email, timestamp: Date.now() }));
+
+        setTimeout(() => {
+            closeSignupModal();
+            checkAdminAuth();
+        }, 1200);
+    } else {
+        if (errMsg) errMsg.innerText = authError || "Failed to create admin credentials in Supabase.";
+        if (errAlert) errAlert.classList.remove("hidden");
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     // Check initial auth state
     checkAdminAuth();
@@ -596,6 +708,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // Login Form Submit
     const loginForm = document.getElementById("admin-login-form");
     if (loginForm) loginForm.addEventListener("submit", handleAdminLogin);
+
+    // Initialize Admin Credentials Button & Modal
+    document.getElementById("btn-toggle-signup")?.addEventListener("click", openSignupModal);
+    document.getElementById("close-signup-modal")?.addEventListener("click", closeSignupModal);
+    document.getElementById("admin-signup-form")?.addEventListener("submit", handleAdminSignup);
 
     // Logout Button
     const logoutBtn = document.getElementById("btn-logout");
@@ -630,6 +747,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.key === "Escape") {
             closeOrderDetailsModal();
             closeProductModal();
+            closeSignupModal();
         }
     });
 });
@@ -639,3 +757,4 @@ window.updateOrderStatus = updateOrderStatus;
 window.viewOrderDetails = viewOrderDetails;
 window.openEditProductModal = openEditProductModal;
 window.deleteProduct = deleteProduct;
+
