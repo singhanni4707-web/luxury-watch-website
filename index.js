@@ -228,6 +228,88 @@ function handleNavbarScroll() {
     }
 }
 
+// 8. Supabase Product Integration & Rendering
+const DEFAULT_PRODUCTS = [
+    {
+        name: "Obsidian Gold",
+        series: "Signature Series",
+        subtitle: "Automatic Movement • 42mm • Skeleton Dial",
+        price: "$12,400",
+        image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuCJ1d0DJTQ3Ber0yT60vjZ1gMWAZ_uENqh41A5rl9BDwkpfKjBapwzxoFURpKIziVM-tk0MwzB4zgC7fvB-rk3E2Z6vmzdw8C-TA9GMViTmBBOjz5yHNxHqeWb37DLi-CR4w6U9EdsS2U293w1YTMMeJUbJ8Qa-evgFYOmRYqfHHsI88ntext6mg9Q1rg_cRuDjJfL4uSC9ysqgHCBuIzMUbqq4Mwz6J2wkE5ia3qsTSi0tPIXEBOmvq6XlU51WYwTMJTvHS7rodmhw"
+    },
+    {
+        name: "Classic Chrono",
+        series: "Heritage Line",
+        subtitle: "Chronograph • 40mm • 24k Gold Bracelet",
+        price: "$15,800",
+        image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuCcw9oT_vxxtgOQUoy_XP6ZnfURLvnq1V8bccXUMmmAcrJLIh-VAuKcXnVP9LGfK1mH1iqg6ijXH7kVQgdFzMWX9GZVFtLQchv6s2v8GleUygniIuc5VMBBeWMdNNSu2DisnJnPvIEcVcv0uPO8umwGWD4QiOXOjeN2TTsAQT6it7FuCkLfJr5rFxBnz7pIAdOEbDjcVTA5_-yzmoirnNFO1KXQYhnklKcANe9fVIquiupKLuAi_2WiB-0mjKZnB0y_FbihOChH1sbN"
+    },
+    {
+        name: "Midnight Masterpiece",
+        series: "Limited Edition",
+        subtitle: "Manual Wind • 44mm • Titanium Case",
+        price: "$24,000",
+        image_url: "https://lh3.googleusercontent.com/aida-public/AB6AXuCwE9xOPMZC9vRUneIX68p0UpSciLB3Ug2YBrnaxWna1XUTOif1c3tEynItWtnzi_hfDyt5hxo0gJmPRKHcV3HPZ3CPbxNkCfj6f9IX2n8Mu0sH8Q7LOA21MSzMREIZtjtLkB8A62r6t9oRCUQ0xk6bMZBLpbDCdMiPm36P6mV6Ha_oQhpVG9Sj6BOuc8uWusukPiG_pWqYWqIidFfoiQVe-P8IzZD9UOy0bVA9m-D7a5DHxm3YbEgLxdddy5qzlaBrJEa5AIqCBqQ5"
+    }
+];
+
+// Helper function to extract product image URL from Supabase record
+function getProductImageUrl(item) {
+    if (!item) return '';
+    return item.image_url || item['image_url'] || item['image-url'] || item.imageUrl || item.image || item.img || '';
+}
+
+async function loadSupabaseProducts() {
+    const container = document.getElementById('products-grid');
+    if (!container) return;
+
+    try {
+        let products = [];
+        if (typeof window.fetchProductsFromDatabase === 'function') {
+            products = await window.fetchProductsFromDatabase();
+        }
+
+        if (!products || products.length === 0) {
+            products = DEFAULT_PRODUCTS;
+        }
+
+        renderProducts(products, container);
+    } catch (error) {
+        console.error('Failed to load products from Supabase:', error);
+        renderProducts(DEFAULT_PRODUCTS, container);
+    }
+}
+
+function renderProducts(items, container) {
+    container.innerHTML = '';
+    items.forEach((item, index) => {
+        const delay = index * 200;
+        const seriesName = item.series || item.brand || item.category || 'Signature Series';
+        const subtitleText = item.subtitle || item.description || (item.stock !== undefined ? `Stock: ${item.stock} available` : 'Swiss Precision Movement');
+        const priceText = typeof item.price === 'number' ? `$${item.price.toLocaleString()}` : (item.price || '$12,400');
+        const imgUrl = getProductImageUrl(item) || (DEFAULT_PRODUCTS[index % DEFAULT_PRODUCTS.length] ? DEFAULT_PRODUCTS[index % DEFAULT_PRODUCTS.length].image_url : '');
+
+        const card = document.createElement('div');
+        card.className = 'reveal group active';
+        card.style.transitionDelay = `${delay}ms`;
+
+        card.innerHTML = `
+            <div class="relative aspect-[3/4] bg-surface-container-high rounded-xl overflow-hidden mb-6 flex items-center justify-center p-12 transition-all duration-500 group-hover:shadow-[0_0_50px_-12px_rgba(233,193,118,0.3)]">
+                <img class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700" alt="${item.name || 'Calci Luxury Watch'}" src="${imgUrl}">
+            </div>
+            <p class="text-primary text-xs font-label-caps uppercase mb-2">${seriesName}</p>
+            <h3 class="font-headline-md text-white mb-2">${item.name || 'Calci Timepiece'}</h3>
+            <p class="text-on-surface-variant text-sm font-body-md mb-4">${subtitleText}</p>
+            <p class="text-white font-bold text-lg">${priceText}</p>
+        `;
+        container.appendChild(card);
+    });
+
+    if (typeof initRevealAnimations === 'function') {
+        initRevealAnimations();
+    }
+}
+
 // Run Setup
 preloadImages().then(() => {
     resizeCanvas();
@@ -235,4 +317,6 @@ preloadImages().then(() => {
     handleNavbarScroll();
     initRevealAnimations();
     initSmoothScroll();
+    loadSupabaseProducts();
 });
+

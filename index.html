@@ -184,7 +184,7 @@
                         View Full Catalog <span class="material-symbols-outlined">trending_flat</span>
                     </a>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div id="products-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <!-- Watch 1 -->
                     <div class="reveal group">
                         <div class="relative aspect-[3/4] bg-surface-container-high rounded-xl overflow-hidden mb-6 flex items-center justify-center p-12 transition-all duration-500 group-hover:shadow-[0_0_50px_-12px_rgba(233,193,118,0.3)]">
@@ -336,6 +336,8 @@
         </footer>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
     <script src="index.js"></script>
 </body>
 </html>
