@@ -647,12 +647,204 @@ function openProductModal(product) {
         });
     }
 
+    // Load & Render Section 5: Client Reviews & Ratings
+    loadAndRenderProductReviews(product.id);
+
     backdrop.classList.remove('hidden', 'pointer-events-none');
     setTimeout(() => {
         backdrop.classList.remove('opacity-0');
         card.classList.remove('scale-95');
         card.classList.add('scale-100');
     }, 10);
+}
+
+// Section 5: Fetch and Render Product Reviews from Supabase
+async function loadAndRenderProductReviews(productId) {
+    const listEl = document.getElementById('modal-reviews-list');
+    const avgRatingEl = document.getElementById('reviews-avg-rating');
+    const avgStarsEl = document.getElementById('reviews-avg-stars');
+    const totalCounterEl = document.getElementById('reviews-total-counter');
+    const summaryTextEl = document.getElementById('reviews-summary-text');
+    const successAlert = document.getElementById('review-form-success');
+    const errorAlert = document.getElementById('review-form-error');
+
+    if (successAlert) successAlert.classList.add('hidden');
+    if (errorAlert) errorAlert.classList.add('hidden');
+
+    if (!listEl) return;
+
+    listEl.innerHTML = '<div class="text-xs text-on-surface-variant font-mono py-4 animate-pulse">Loading verified client reviews...</div>';
+
+    let reviews = [];
+    if (typeof window.fetchReviewsFromDatabase === 'function') {
+        reviews = await window.fetchReviewsFromDatabase(productId);
+    }
+
+    if (!reviews) reviews = [];
+
+    const totalCount = reviews.length;
+    let sum = 0;
+    const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+    reviews.forEach(r => {
+        const rating = parseInt(r.rating || 5);
+        sum += rating;
+        if (counts[rating] !== undefined) {
+            counts[rating]++;
+        }
+    });
+
+    const avg = totalCount > 0 ? (sum / totalCount).toFixed(1) : '5.0';
+
+    if (avgRatingEl) avgRatingEl.innerText = avg;
+    if (totalCounterEl) totalCounterEl.innerText = totalCount === 1 ? '1 Verified Review' : `${totalCount} Verified Reviews`;
+    if (summaryTextEl) summaryTextEl.innerText = `Based on ${totalCount} verified client review${totalCount === 1 ? '' : 's'}`;
+
+    if (avgStarsEl) {
+        const rounded = Math.round(parseFloat(avg));
+        avgStarsEl.innerHTML = '★'.repeat(rounded) + '<span class="text-on-surface-variant/30">' + '★'.repeat(5 - rounded) + '</span>';
+    }
+
+    // Update Rating Bars
+    [5, 4, 3, 2, 1].forEach(star => {
+        const barEl = document.getElementById(`bar-${star}-star`);
+        const countEl = document.getElementById(`count-${star}-star`);
+        const c = counts[star] || 0;
+        const pct = totalCount > 0 ? Math.round((c / totalCount) * 100) : 0;
+        if (barEl) barEl.style.width = `${pct}%`;
+        if (countEl) countEl.innerText = `${c} (${pct}%)`;
+    });
+
+    // Render Reviews List (Newest first)
+    if (reviews.length === 0) {
+        listEl.innerHTML = `
+            <div class="bg-surface-container-high border border-outline-variant/40 rounded-xl p-6 text-center space-y-2">
+                <span class="material-symbols-outlined text-primary text-3xl">rate_review</span>
+                <p class="text-white font-bold text-xs uppercase tracking-wider">No Client Reviews Yet</p>
+                <p class="text-on-surface-variant text-xs">Be the first distinguished client to share your experience with this timepiece.</p>
+            </div>
+        `;
+        return;
+    }
+
+    listEl.innerHTML = '';
+    reviews.forEach(r => {
+        const dateStr = r.created_at ? new Date(r.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'Recently';
+        const ratingNum = parseInt(r.rating || 5);
+        const starHtml = '★'.repeat(ratingNum) + '<span class="text-on-surface-variant/30">' + '★'.repeat(5 - ratingNum) + '</span>';
+
+        const card = document.createElement('div');
+        card.className = 'bg-surface-container-high border border-outline-variant/40 rounded-xl p-5 space-y-2';
+        card.innerHTML = `
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="size-7 rounded-full bg-primary/20 text-primary border border-primary/40 flex items-center justify-center font-bold text-xs">
+                        ${(r.customer_name || 'C').charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                        <h5 class="text-white font-bold text-xs">${r.customer_name || 'Anonymous Client'}</h5>
+                        <div class="flex text-primary text-xs">${starHtml}</div>
+                    </div>
+                </div>
+                <span class="text-[10px] text-on-surface-variant font-mono bg-surface-container px-2.5 py-1 rounded-full border border-outline-variant/40">${dateStr}</span>
+            </div>
+            <p class="text-on-surface-variant text-xs font-body-md leading-relaxed pt-1">${r.review_text || ''}</p>
+        `;
+        listEl.appendChild(card);
+    });
+}
+
+function initReviewFormListeners() {
+    const starPicker = document.getElementById('review-star-picker');
+    const ratingValueInput = document.getElementById('review-rating-value');
+    const starLabel = document.getElementById('selected-star-label');
+    const form = document.getElementById('review-submit-form');
+    const successAlert = document.getElementById('review-form-success');
+    const errorAlert = document.getElementById('review-form-error');
+    const errorMsg = document.getElementById('review-error-msg');
+
+    if (starPicker) {
+        const items = starPicker.querySelectorAll('.star-picker-item');
+        items.forEach(item => {
+            item.addEventListener('click', () => {
+                const val = parseInt(item.getAttribute('data-star') || '5');
+                if (ratingValueInput) ratingValueInput.value = val;
+                if (starLabel) starLabel.innerText = `${val} / 5 Stars`;
+
+                items.forEach((s, idx) => {
+                    if (idx < val) {
+                        s.classList.add('text-primary');
+                        s.classList.remove('text-on-surface-variant/40');
+                    } else {
+                        s.classList.remove('text-primary');
+                        s.classList.add('text-on-surface-variant/40');
+                    }
+                });
+            });
+        });
+    }
+
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (successAlert) successAlert.classList.add('hidden');
+            if (errorAlert) errorAlert.classList.add('hidden');
+
+            const name = document.getElementById('review-customer-name')?.value.trim();
+            const rating = parseInt(ratingValueInput?.value || '0');
+            const text = document.getElementById('review-text-input')?.value.trim();
+
+            if (!name || !text || rating < 1 || rating > 5) {
+                if (errorAlert && errorMsg) {
+                    errorMsg.innerText = 'Please enter your name, select a star rating (1-5), and write a review.';
+                    errorAlert.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (!activeModalProduct) return;
+
+            const submitBtn = document.getElementById('btn-submit-review');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Publishing Review...';
+            }
+
+            const payload = {
+                product_id: String(activeModalProduct.id),
+                customer_name: name,
+                rating: rating,
+                review_text: text
+            };
+
+            const result = await window.saveReviewToSupabase(payload);
+
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span class="material-symbols-outlined text-sm">send</span> <span>Submit Client Review</span>';
+            }
+
+            if (result && result.success) {
+                if (successAlert) successAlert.classList.remove('hidden');
+                form.reset();
+                if (ratingValueInput) ratingValueInput.value = '0';
+                if (starLabel) starLabel.innerText = 'Select Rating';
+                if (starPicker) {
+                    starPicker.querySelectorAll('.star-picker-item').forEach(s => {
+                        s.classList.remove('text-primary');
+                        s.classList.add('text-on-surface-variant/40');
+                    });
+                }
+                // Reload reviews list
+                loadAndRenderProductReviews(activeModalProduct.id);
+            } else {
+                if (errorAlert && errorMsg) {
+                    errorMsg.innerText = result?.error || 'Failed to submit review. Please try again.';
+                    errorAlert.classList.remove('hidden');
+                }
+            }
+        });
+    }
 }
 
 function closeProductModal() {
@@ -1434,6 +1626,7 @@ preloadImages().then(() => {
     initTrackingListeners();
     initNewsletterForm();
     initProductSearchAndFilterListeners();
+    initReviewFormListeners();
     loadSupabaseProducts();
 });
 

@@ -114,3 +114,34 @@ FOR DELETE
 TO authenticated 
 USING (auth.role() = 'authenticated');
 
+-- ============================================================
+-- 7. CREATE TABLE public.reviews
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.reviews (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    product_id TEXT NOT NULL,
+    customer_name TEXT NOT NULL,
+    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    review_text TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS on public.reviews
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+
+-- Allow public read access (SELECT) for reviews
+DROP POLICY IF EXISTS "Allow public select from reviews" ON public.reviews;
+CREATE POLICY "Allow public select from reviews" 
+ON public.reviews 
+FOR SELECT 
+TO public, anon, authenticated 
+USING (true);
+
+-- Allow public review submission (INSERT)
+DROP POLICY IF EXISTS "Allow public insert into reviews" ON public.reviews;
+CREATE POLICY "Allow public insert into reviews" 
+ON public.reviews 
+FOR INSERT 
+TO public, anon, authenticated 
+WITH CHECK (true);
+

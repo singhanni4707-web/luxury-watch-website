@@ -148,3 +148,101 @@ window.supabaseClient = supabaseClient;
 window.fetchProductsFromDatabase = fetchProductsFromDatabase;
 window.saveOrderToSupabase = saveOrderToSupabase;
 
+/**
+ * Fetch reviews for a product from Supabase table `public.reviews`
+ */
+async function fetchReviewsFromDatabase(productId) {
+    initSupabaseClient();
+    try {
+        if (supabaseClient) {
+            const { data, error } = await supabaseClient
+                .from("reviews")
+                .select("*")
+                .eq("product_id", String(productId))
+                .order("created_at", { ascending: false });
+
+            if (error) {
+                console.warn("Supabase SDK reviews query error:", error);
+                return await fetchReviewsViaRest(productId);
+            }
+            return data || [];
+        }
+        return await fetchReviewsViaRest(productId);
+    } catch (e) {
+        console.warn("Failed to fetch reviews via SDK, using REST fallback:", e);
+        return await fetchReviewsViaRest(productId);
+    }
+}
+
+async function fetchReviewsViaRest(productId) {
+    try {
+        const cleanUrl = ENV_SUPABASE_URL.replace(/\/$/, "");
+        const res = await fetch(`${cleanUrl}/reviews?product_id=eq.${encodeURIComponent(productId)}&order=created_at.desc`, {
+            headers: {
+                "apikey": ENV_SUPABASE_PUBLISHABLE_KEY,
+                "Authorization": `Bearer ${ENV_SUPABASE_PUBLISHABLE_KEY}`
+            }
+        });
+        if (!res.ok) return [];
+        return await res.json();
+    } catch (e) {
+        console.error("REST reviews fetch failed:", e);
+        return [];
+    }
+}
+
+/**
+ * Insert a new review into Supabase table `public.reviews`
+ */
+async function saveReviewToSupabase(reviewData) {
+    initSupabaseClient();
+    try {
+        if (supabaseClient) {
+            const { data, error } = await supabaseClient
+                .from("reviews")
+                .insert([reviewData])
+                .select();
+
+            if (error) {
+                console.warn("Supabase SDK review insert error:", error);
+                return await saveReviewViaRest(reviewData);
+            }
+            return { success: true, data: data ? data[0] : null };
+        }
+        return await saveReviewViaRest(reviewData);
+    } catch (e) {
+        console.warn("Error inserting review via SDK:", e);
+        return await saveReviewViaRest(reviewData);
+    }
+}
+
+async function saveReviewViaRest(reviewData) {
+    try {
+        const cleanUrl = ENV_SUPABASE_URL.replace(/\/$/, "");
+        const res = await fetch(`${cleanUrl}/reviews`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": ENV_SUPABASE_PUBLISHABLE_KEY,
+                "Authorization": `Bearer ${ENV_SUPABASE_PUBLISHABLE_KEY}`,
+                "Prefer": "return=representation"
+            },
+            body: JSON.stringify(reviewData)
+        });
+
+        if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(errText);
+        }
+
+        const data = await res.json();
+        return { success: true, data: data ? data[0] : null };
+    } catch (e) {
+        console.error("REST review insert failed:", e);
+        return { success: false, error: e.message };
+    }
+}
+
+window.fetchReviewsFromDatabase = fetchReviewsFromDatabase;
+window.saveReviewToSupabase = saveReviewToSupabase;
+

@@ -573,6 +573,132 @@
                         <!-- Loaded dynamically via JS from Supabase -->
                     </div>
                 </div>
+
+                <!-- Section 5: Client Reviews & Ratings -->
+                <div class="pt-8 border-t border-outline-variant/60 space-y-8">
+                    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                        <div>
+                            <span class="text-primary font-label-caps uppercase text-xs tracking-widest font-bold">Client Testimonials</span>
+                            <h3 class="font-headline-lg text-white text-2xl uppercase tracking-wider mt-1">Verified Client Reviews</h3>
+                        </div>
+                        <span id="reviews-total-counter" class="text-xs text-primary font-bold bg-primary/10 border border-primary/30 px-3 py-1.5 rounded-full uppercase tracking-wider w-fit">
+                            0 Client Reviews
+                        </span>
+                    </div>
+
+                    <!-- Rating Summary & Breakdown Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 bg-surface-container-high border border-outline-variant/40 rounded-2xl p-6">
+                        <!-- Score Box (Left / Col 4) -->
+                        <div class="md:col-span-4 flex flex-col items-center justify-center text-center p-4 border-b md:border-b-0 md:border-r border-outline-variant/40 space-y-2">
+                            <span id="reviews-avg-rating" class="font-headline-lg text-white text-5xl font-bold">0.0</span>
+                            <div id="reviews-avg-stars" class="flex text-primary text-xl">
+                                ★★★★★
+                            </div>
+                            <p id="reviews-summary-text" class="text-xs text-on-surface-variant">Based on 0 verified client reviews</p>
+                        </div>
+
+                        <!-- Rating Bars (Right / Col 8) -->
+                        <div id="reviews-breakdown-bars" class="md:col-span-8 space-y-2 text-xs text-on-surface-variant flex flex-col justify-center">
+                            <!-- 5 Stars Bar -->
+                            <div class="flex items-center gap-3">
+                                <span class="w-8 font-bold text-white">5 ★</span>
+                                <div class="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
+                                    <div id="bar-5-star" class="h-full bg-primary rounded-full transition-all duration-500 w-0"></div>
+                                </div>
+                                <span id="count-5-star" class="w-8 text-right font-mono">0</span>
+                            </div>
+                            <!-- 4 Stars Bar -->
+                            <div class="flex items-center gap-3">
+                                <span class="w-8 font-bold text-white">4 ★</span>
+                                <div class="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
+                                    <div id="bar-4-star" class="h-full bg-primary/80 rounded-full transition-all duration-500 w-0"></div>
+                                </div>
+                                <span id="count-4-star" class="w-8 text-right font-mono">0</span>
+                            </div>
+                            <!-- 3 Stars Bar -->
+                            <div class="flex items-center gap-3">
+                                <span class="w-8 font-bold text-white">3 ★</span>
+                                <div class="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
+                                    <div id="bar-3-star" class="h-full bg-primary/60 rounded-full transition-all duration-500 w-0"></div>
+                                </div>
+                                <span id="count-3-star" class="w-8 text-right font-mono">0</span>
+                            </div>
+                            <!-- 2 Stars Bar -->
+                            <div class="flex items-center gap-3">
+                                <span class="w-8 font-bold text-white">2 ★</span>
+                                <div class="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
+                                    <div id="bar-2-star" class="h-full bg-amber-500/60 rounded-full transition-all duration-500 w-0"></div>
+                                </div>
+                                <span id="count-2-star" class="w-8 text-right font-mono">0</span>
+                            </div>
+                            <!-- 1 Star Bar -->
+                            <div class="flex items-center gap-3">
+                                <span class="w-8 font-bold text-white">1 ★</span>
+                                <div class="flex-1 h-2 bg-surface-container rounded-full overflow-hidden">
+                                    <div id="bar-1-star" class="h-full bg-red-500/60 rounded-full transition-all duration-500 w-0"></div>
+                                </div>
+                                <span id="count-1-star" class="w-8 text-right font-mono">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review Submission Form -->
+                    <div class="bg-surface-container-high border border-outline-variant/40 rounded-2xl p-6 space-y-6">
+                        <h4 class="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">rate_review</span>
+                            <span>Write a Client Review</span>
+                        </h4>
+
+                        <!-- Submission Status Alerts -->
+                        <div id="review-form-success" class="hidden bg-emerald-500/10 border border-emerald-500/40 text-emerald-400 p-4 rounded-xl text-xs flex items-center gap-2">
+                            <span class="material-symbols-outlined">check_circle</span>
+                            <span>Thank you for your client review! Your feedback has been published.</span>
+                        </div>
+                        <div id="review-form-error" class="hidden bg-red-500/10 border border-red-500/40 text-red-400 p-4 rounded-xl text-xs flex items-center gap-2">
+                            <span class="material-symbols-outlined">error</span>
+                            <span id="review-error-msg">Please fill out all fields and select a rating.</span>
+                        </div>
+
+                        <form id="review-submit-form" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider font-bold text-on-surface mb-1.5">Your Full Name *</label>
+                                    <input id="review-customer-name" required type="text" placeholder="Lord / Lady / Full Name" class="w-full bg-surface-container border border-outline-variant/60 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase tracking-wider font-bold text-on-surface mb-1.5">Your Rating *</label>
+                                    <div id="review-star-picker" class="flex items-center gap-1 text-2xl text-on-surface-variant/40 cursor-pointer py-1">
+                                        <span data-star="1" class="star-picker-item hover:text-primary transition-colors">★</span>
+                                        <span data-star="2" class="star-picker-item hover:text-primary transition-colors">★</span>
+                                        <span data-star="3" class="star-picker-item hover:text-primary transition-colors">★</span>
+                                        <span data-star="4" class="star-picker-item hover:text-primary transition-colors">★</span>
+                                        <span data-star="5" class="star-picker-item hover:text-primary transition-colors">★</span>
+                                        <span id="selected-star-label" class="text-xs font-mono font-bold text-primary ml-2">Select Rating</span>
+                                    </div>
+                                    <input id="review-rating-value" type="hidden" value="0">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider font-bold text-on-surface mb-1.5">Your Review *</label>
+                                <textarea id="review-text-input" required rows="3" placeholder="Share your experience with this timepiece..." class="w-full bg-surface-container border border-outline-variant/60 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-primary resize-none"></textarea>
+                            </div>
+
+                            <button id="btn-submit-review" type="submit" class="bg-primary text-on-primary px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:brightness-110 shadow-lg transition-all cursor-pointer flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">send</span>
+                                <span>Submit Client Review</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Reviews List Container -->
+                    <div class="space-y-4">
+                        <h4 class="text-xs uppercase tracking-widest font-bold text-on-surface border-b border-outline-variant/40 pb-2">Client Reviews (Newest First)</h4>
+                        <div id="modal-reviews-list" class="space-y-4">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Mobile Sticky Add to Cart Bottom Bar -->
