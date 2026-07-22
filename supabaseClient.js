@@ -153,16 +153,31 @@ window.saveOrderToSupabase = saveOrderToSupabase;
  */
 async function fetchReviewsFromDatabase(productId) {
     initSupabaseClient();
+    if (!productId) return [];
+
     try {
         if (supabaseClient) {
-            const { data, error } = await supabaseClient
+            // 1. Try querying with string product_id
+            let { data, error } = await supabaseClient
                 .from("reviews")
                 .select("*")
                 .eq("product_id", String(productId))
                 .order("created_at", { ascending: false });
 
+            if (data && data.length > 0) return data;
+
+            // 2. If empty and productId is numeric, try integer query
+            if ((!data || data.length === 0) && !isNaN(productId)) {
+                const { data: numData } = await supabaseClient
+                    .from("reviews")
+                    .select("*")
+                    .eq("product_id", Number(productId))
+                    .order("created_at", { ascending: false });
+                if (numData && numData.length > 0) return numData;
+            }
+
             if (error) {
-                console.warn("Supabase SDK reviews query error:", error);
+                console.warn("Supabase SDK reviews query warning:", error.message);
                 return await fetchReviewsViaRest(productId);
             }
             return data || [];
@@ -204,7 +219,7 @@ async function saveReviewToSupabase(reviewData) {
                 .select();
 
             if (error) {
-                console.warn("Supabase SDK review insert error:", error);
+                console.warn("Supabase SDK review insert warning:", error.message);
                 return await saveReviewViaRest(reviewData);
             }
             return { success: true, data: data ? data[0] : null };
