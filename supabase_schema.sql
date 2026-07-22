@@ -64,35 +64,45 @@ FOR SELECT
 TO public, anon, authenticated 
 USING (true);
 
--- 6. RLS Policies for public.products (Required for Admin Add / Edit / Delete)
+-- 6. Secure RLS Policies for public.products
+-- Public Website: SELECT ONLY (read products)
+-- Authenticated Admin: INSERT, UPDATE, DELETE allowed
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 
+-- Allow public read access (SELECT) for everyone (anon and authenticated)
 DROP POLICY IF EXISTS "Allow public select from products" ON public.products;
-CREATE POLICY "Allow public select from products" 
+DROP POLICY IF EXISTS "Allow public read products" ON public.products;
+CREATE POLICY "Allow public read products" 
 ON public.products 
 FOR SELECT 
 TO public, anon, authenticated 
 USING (true);
 
+-- Allow product INSERT ONLY for authenticated admin users
 DROP POLICY IF EXISTS "Allow public insert into products" ON public.products;
-CREATE POLICY "Allow public insert into products" 
+DROP POLICY IF EXISTS "Allow authenticated admin insert products" ON public.products;
+CREATE POLICY "Allow authenticated admin insert products" 
 ON public.products 
 FOR INSERT 
-TO public, anon, authenticated 
-WITH CHECK (true);
+TO authenticated 
+WITH CHECK (auth.role() = 'authenticated');
 
+-- Allow product UPDATE ONLY for authenticated admin users
 DROP POLICY IF EXISTS "Allow public update on products" ON public.products;
-CREATE POLICY "Allow public update on products" 
+DROP POLICY IF EXISTS "Allow authenticated admin update products" ON public.products;
+CREATE POLICY "Allow authenticated admin update products" 
 ON public.products 
 FOR UPDATE 
-TO public, anon, authenticated 
-USING (true)
-WITH CHECK (true);
+TO authenticated 
+USING (auth.role() = 'authenticated') 
+WITH CHECK (auth.role() = 'authenticated');
 
+-- Allow product DELETE ONLY for authenticated admin users
 DROP POLICY IF EXISTS "Allow public delete from products" ON public.products;
-CREATE POLICY "Allow public delete from products" 
+DROP POLICY IF EXISTS "Allow authenticated admin delete products" ON public.products;
+CREATE POLICY "Allow authenticated admin delete products" 
 ON public.products 
 FOR DELETE 
-TO public, anon, authenticated 
-USING (true);
+TO authenticated 
+USING (auth.role() = 'authenticated');
 

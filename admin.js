@@ -78,6 +78,7 @@ async function handleAdminLogin(e) {
     const passEl = document.getElementById("admin-password");
     const errAlert = document.getElementById("login-error-alert");
     const errMsg = document.getElementById("login-error-msg");
+    const btn = document.getElementById("btn-login");
 
     if (!emailEl || !passEl) return;
 
@@ -91,42 +92,32 @@ async function handleAdminLogin(e) {
     }
 
     if (errAlert) errAlert.classList.add("hidden");
+    if (btn) btn.disabled = true;
 
     let authSuccess = false;
+    let authErrorMsg = null;
 
-    // Attempt Supabase Auth Sign In / Sign Up
+    // Attempt Supabase Auth Sign In
     if (window.supabaseClient && window.supabaseClient.auth) {
         try {
-            if (isAuthModeSignup) {
-                const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
-                if (error) throw error;
+            const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) {
+                authErrorMsg = error.message;
+            } else if (data && data.session) {
                 authSuccess = true;
-            } else {
-                const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) {
-                    // Try sign up if user does not exist
-                    const { data: signUpData, error: signUpErr } = await window.supabaseClient.auth.signUp({ email, password });
-                    if (signUpErr) throw error;
-                    authSuccess = true;
-                } else {
-                    authSuccess = true;
-                }
             }
         } catch (err) {
-            console.warn("Supabase auth note:", err.message);
+            authErrorMsg = err.message;
         }
     }
 
-    // Direct password check fallback for initial setup
-    if (!authSuccess && password.length >= 6) {
-        authSuccess = true;
-    }
+    if (btn) btn.disabled = false;
 
     if (authSuccess) {
         localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({ email, timestamp: Date.now() }));
         checkAdminAuth();
     } else {
-        if (errMsg) errMsg.innerText = "Invalid credentials. Password must be at least 6 characters.";
+        if (errMsg) errMsg.innerText = authErrorMsg || "Invalid credentials. Please click 'Initialize Admin Credentials' if logging in for the first time.";
         if (errAlert) errAlert.classList.remove("hidden");
     }
 }
