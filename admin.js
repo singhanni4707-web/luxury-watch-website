@@ -51,8 +51,15 @@ async function checkAdminAuth() {
         if (userEmailEl) userEmailEl.innerText = userEmail || "admin@calci.ch";
         loadDashboardData();
     } else {
-        if (loginView) loginView.classList.remove("hidden");
+        // Clear sensitive admin data from memory when unauthenticated
+        adminOrders = [];
+        adminProducts = [];
         if (dashboardView) dashboardView.classList.add("hidden");
+        if (loginView) loginView.classList.remove("hidden");
+    }
+
+    if (typeof window.updateGlobalAdminNavVisibility === 'function') {
+        window.updateGlobalAdminNavVisibility(isAuthenticated ? { user: { email: userEmail } } : null);
     }
 }
 
@@ -877,6 +884,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Expose handlers globally for inline HTML events
+window.checkAdminAuth = checkAdminAuth;
+window.handleAdminLogout = handleAdminLogout;
 window.updateOrderStatus = updateOrderStatus;
 window.viewOrderDetails = viewOrderDetails;
 window.openEditProductModal = openEditProductModal;

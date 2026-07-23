@@ -27,3 +27,5 @@ dist/
 # Environment variables
 .env
 
+*.code-workspace
+

@@ -333,7 +333,7 @@ async function updateGlobalAdminNavVisibility(session) {
     }
 
     const hasSession = !!(session && session.user);
-    const links = document.querySelectorAll('.admin-nav-link, a[href="admin.html"]');
+    const links = document.querySelectorAll('.admin-nav-link, a[href="admin.html"], a[href="/admin"], a[href="admin/"], a[href="../admin.html"], a[href="/admin.html"]');
 
     links.forEach(link => {
         if (hasSession) {

@@ -148,10 +148,13 @@
                 <a class="text-on-surface-variant hover:text-white transition-colors" href="terms.html">Terms & Conditions</a>
                 <a class="text-on-surface-variant hover:text-white transition-colors" href="shipping.html">Shipping Policy</a>
                 <a class="text-on-surface-variant hover:text-white transition-colors" href="refund.html">Returns Policy</a>
+                <a class="text-on-surface-variant admin-nav-link hidden hover:text-white transition-colors" href="admin.html">Admin Portal</a>
             </div>
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
     <script>
         document.getElementById('contact-form')?.addEventListener('submit', (e) => {
             e.preventDefault();
